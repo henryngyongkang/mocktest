@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock Test for Kelly</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f5f0;--card:#ffffff;--deep:#1c1c2e;--accent:#b5341e;--accent2:#1d6348;
+  --accent3:#1a4f8a;--gold:#9a6e00;--muted:#6b6b7b;--border:#e2ded6;
+  --correct:#1b5e20;--correct-bg:#e8f5e9;--wrong:#b71c1c;--wrong-bg:#fce4ec;
+  --neutral:#f2efe9;--shadow:0 2px 14px rgba(28,28,46,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--deep);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--deep);color:#fff;padding:1.1rem 2rem;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--accent)}
+.hdr-left h1{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700}
+.hdr-left p{font-size:.7rem;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:1.4rem}
+.timer{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:.4rem .9rem;
+  border-radius:8px;font-size:1.25rem;font-weight:600;min-width:76px;text-align:center;transition:background .3s}
+.timer.warn{background:rgba(181,52,30,.45);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.prog-wrap{width:160px}
+.prog-label{font-size:.7rem;color:#aaa;margin-bottom:3px}
+.prog-track{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease}
+
+/* ── CONTAINER ── */
+.ctr{max-width:840px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* ── LANDING ── */
+#landing{text-align:center;padding:3rem 1rem}
+.badge{display:inline-block;background:var(--accent);color:#fff;font-size:.68rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;padding:3px 14px;border-radius:20px;margin-bottom:1.3rem}
+.land-title{font-family:'Playfair Display',serif;font-size:2.7rem;font-weight:700;line-height:1.15;margin-bottom:.6rem}
+.land-sub{font-size:1rem;color:var(--muted);max-width:500px;margin:0 auto 2rem;line-height:1.65}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.65rem;
+  margin-bottom:2.2rem;text-align:left}
+.t-chip{background:#fff;border:1px solid var(--border);padding:.55rem .85rem;border-radius:10px;
+  font-size:.8rem;font-weight:500;display:flex;align-items:center;gap:8px}
+.t-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.btn-start{background:var(--accent);color:#fff;border:none;padding:.9rem 2.8rem;font-size:.95rem;
+  font-weight:600;font-family:'DM Sans',sans-serif;border-radius:10px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;letter-spacing:.3px}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(181,52,30,.35)}
+.info-row{display:flex;justify-content:center;gap:2rem;margin-top:1.4rem;font-size:.8rem;color:var(--muted)}
+.info-row span{display:flex;align-items:center;gap:5px}
+
+/* ── QUIZ ── */
+#quiz{display:none}
+.q-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.9rem}
+.q-num{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+.q-topic-tag{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+  padding:2px 10px;border-radius:12px;background:#e8eaf6;color:#283593}
+.q-diff{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 10px;border-radius:12px}
+.diff-easy{background:#e8f5e9;color:#1b5e20}
+.diff-medium{background:#fff8e1;color:#e65100}
+.diff-hard{background:#fce4ec;color:#880e4f}
+.q-card{background:#fff;border-radius:14px;padding:1.8rem;box-shadow:var(--shadow);
+  border:1px solid var(--border);margin-bottom:1.1rem}
+.q-text{font-size:1.02rem;font-weight:500;line-height:1.65;margin-bottom:1.4rem}
+.q-source{font-size:.72rem;color:var(--muted);font-style:italic;margin-bottom:1rem}
+.opts{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.opt-btn{width:100%;text-align:left;background:var(--neutral);border:1.5px solid var(--border);
+  padding:.8rem 1rem;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:.93rem;color:var(--deep);transition:border-color .15s,background .15s;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.5}
+.opt-btn:hover:not([disabled]){border-color:var(--accent3);background:#e8eaf6}
+.opt-btn.chosen{border-color:var(--accent3);background:#e3f2fd;font-weight:500}
+/* review states (shown after submit) */
+.opt-btn.rev-correct{border-color:var(--correct);background:var(--correct-bg);color:var(--correct);font-weight:500}
+.opt-btn.rev-wrong{border-color:var(--wrong);background:var(--wrong-bg);color:var(--wrong);font-weight:500}
+.opt-ltr{min-width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--muted);
+  font-size:.73rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;transition:background .15s,color .15s}
+.opt-btn.chosen .opt-ltr{background:var(--accent3);color:#fff}
+.opt-btn.rev-correct .opt-ltr{background:var(--correct);color:#fff}
+.opt-btn.rev-wrong .opt-ltr{background:var(--wrong);color:#fff}
+.exp-box{background:#f0f4ff;border-left:4px solid var(--accent3);border-radius:0 10px 10px 0;
+  padding:.9rem 1.1rem;margin-top:1.1rem;font-size:.88rem;line-height:1.65;color:#1a1a3e;display:none}
+.exp-box.show{display:block}
+.exp-label{font-weight:700;color:var(--accent3);font-size:.74rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+
+/* nav */
+.nav-row{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.dots-wrap{display:flex;flex-wrap:wrap;gap:5px;max-width:300px}
+.dot{width:17px;height:17px;border-radius:50%;background:var(--border);border:none;cursor:pointer;
+  transition:background .15s;flex-shrink:0;title:''}
+.dot.cur{background:var(--accent3)}
+.dot.ans{background:var(--accent2)}
+.dot.cur.ans{background:var(--accent)}
+.dot.flag{outline:2px solid var(--gold);outline-offset:1px}
+.nav-btns{display:flex;gap:.6rem}
+.btn-nav{background:#fff;border:1.5px solid var(--border);padding:.65rem 1.3rem;border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;color:var(--deep);cursor:pointer;
+  transition:border-color .15s,background .15s}
+.btn-nav:hover{border-color:var(--deep);background:#f5f5f5}
+.btn-flag{background:#fff;border:1.5px solid var(--gold);color:var(--gold);padding:.65rem 1.1rem;
+  border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer}
+.btn-flag.flagged{background:var(--gold);color:#fff}
+.btn-sub{background:var(--accent2);color:#fff;border:none;padding:.65rem 1.6rem;border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;
+  transition:transform .15s,box-shadow .15s}
+.btn-sub:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(29,99,72,.3)}
+
+/* ── RESULTS ── */
+#results{display:none}
+.res-hdr{text-align:center;padding:2.5rem 0 1.5rem}
+.score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 1rem;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;border:8px solid var(--border)}
+.score-num{font-family:'Playfair Display',serif;font-size:2.3rem;font-weight:700;line-height:1}
+.score-lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.grade-badge{display:inline-block;font-size:.78rem;font-weight:700;padding:4px 16px;border-radius:20px;margin-bottom:.5rem}
+.res-title{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:.3rem}
+.res-sub{font-size:.88rem;color:var(--muted)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:1.4rem 0}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:.9rem;
+  text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700}
+.stat-desc{font-size:.72rem;color:var(--muted);margin-top:2px}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:600;
+  margin:1.8rem 0 .9rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+.tp-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;
+  margin-bottom:.65rem;box-shadow:var(--shadow)}
+.tp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.tp-name{font-weight:500;font-size:.92rem}
+.tp-pill{font-size:.77rem;font-weight:600;padding:2px 10px;border-radius:12px}
+.bar-track{height:7px;background:var(--neutral);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 1.2s ease}
+.weak-card{background:#fff8f6;border:1px solid #f5ccc0;border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:.85rem}
+.weak-title{font-weight:600;font-size:.92rem;color:var(--accent);margin-bottom:.35rem;display:flex;align-items:center;gap:6px}
+.weak-recs{font-size:.85rem;color:#555;line-height:1.75;list-style:none}
+.weak-recs li::before{content:"→ ";color:var(--accent);font-weight:700}
+.str-card{background:#f0faf4;border:1px solid #a8d5b5;border-radius:12px;padding:.9rem 1.1rem;margin-bottom:.6rem}
+.str-title{font-weight:600;color:var(--accent2);margin-bottom:.25rem;font-size:.9rem}
+
+/* review section */
+.rev-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;
+  margin-bottom:.7rem;box-shadow:var(--shadow)}
+.rev-q{font-size:.88rem;font-weight:500;margin-bottom:.5rem;line-height:1.55}
+.rev-tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  padding:1px 8px;border-radius:10px;margin-bottom:.5rem;display:inline-block}
+.rev-answers{font-size:.83rem;display:flex;flex-direction:column;gap:4px}
+.rev-your{color:var(--wrong)}
+.rev-your.ok{color:var(--correct)}
+.rev-correct-ans{color:var(--correct)}
+.rev-exp{font-size:.8rem;color:var(--muted);margin-top:5px;font-style:italic;line-height:1.6}
+
+.btn-download{background:var(--accent2);color:#fff;border:none;padding:.9rem 2.8rem;
+  font-size:.95rem;font-weight:600;font-family:'DM Sans',sans-serif;border-radius:10px;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;
+  justify-content:center;gap:.6rem}
+.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(29,99,72,.32)}
+.btn-download svg{flex-shrink:0}
+.action-row{display:flex;flex-direction:column;align-items:center;gap:.85rem;margin-top:2rem;
+  padding:1.5rem 2rem;background:#fff;border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow)}
+.action-row-label{font-size:.75rem;color:var(--muted);font-weight:500;letter-spacing:.5px;
+  text-transform:uppercase;text-align:center}
+.action-row-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.btn-retake{background:var(--accent);color:#fff;border:none;
+  padding:.9rem 2.8rem;font-size:.95rem;font-weight:600;font-family:'DM Sans',sans-serif;
+  border-radius:10px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn-retake:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(181,52,30,.3)}
+
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .35s ease forwards}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;
+  align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:2rem;max-width:440px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.7rem}
+.modal p{font-size:.92rem;color:var(--muted);line-height:1.6;margin-bottom:1.3rem}
+.modal-btns{display:flex;gap:.75rem;justify-content:flex-end}
+.modal-cancel{background:#fff;border:1.5px solid var(--border);padding:.6rem 1.3rem;border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer}
+.modal-confirm{background:var(--accent);color:#fff;border:none;padding:.6rem 1.5rem;border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer}
+
+/* unanswered warning bar */
+.warn-bar{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:.75rem 1rem;
+  font-size:.85rem;color:#e65100;margin-bottom:1rem;display:none}
+.warn-bar.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Submit Your Test?</h3>
+    <p id="modal-msg">Are you sure you want to submit? Once submitted, you will see your full results and feedback.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Go Back</button>
+      <button class="modal-confirm" onclick="confirmSubmit()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>Mock Test for Kelly</h1>
+    <p>General Surgery &amp; Orthopaedics · Clinical Assessment</p>
+  </div>
+  <div class="hdr-right" id="hdr-right" style="display:none">
+    <div class="prog-wrap">
+      <div class="prog-label" id="prog-label">Q 1 / 40</div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:2.5%"></div></div>
+    </div>
+    <div class="timer" id="timer">60:00</div>
+  </div>
+</div>
+
+<div class="ctr">
+
+<!-- LANDING -->
+<div id="landing" class="fu">
+  <div class="badge">Surgery · Orthopaedics</div>
+  <h2 class="land-title">Ready to Test<br>Your Knowledge, Kelly?</h2>
+  <p class="land-sub">40 randomised, high-yield MCQs drawn from your lecture notes <em>and</em> past examination papers — permuted every attempt for maximum learning.</p>
+  <div class="topics-grid" id="topics-grid"></div>
+  <button class="btn-start" onclick="startTest()">Begin Examination</button>
+  <div class="info-row">
+    <span>⏱ 60 minutes</span>
+    <span>📋 40 questions</span>
+    <span>🔀 Permuted every attempt</span>
+    <span>📊 Post-submission feedback</span>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="warn-bar" id="warn-bar"></div>
+  <div class="q-meta">
+    <span class="q-num" id="q-num">QUESTION 1 OF 40</span>
+    <span class="q-topic-tag" id="q-topic-tag"></span>
+    <span class="q-diff" id="q-diff"></span>
+  </div>
+  <div class="q-card fu" id="q-card">
+    <div class="q-source" id="q-source"></div>
+    <div class="q-text" id="q-text"></div>
+    <ul class="opts" id="opts"></ul>
+    <div class="exp-box" id="exp-box"><div class="exp-label">Explanation</div><div id="exp-text"></div></div>
+  </div>
+  <div class="nav-row">
+    <div class="dots-wrap" id="dots"></div>
+    <div class="nav-btns">
+      <button class="btn-flag" id="btn-flag" onclick="toggleFlag()">⚑ Flag</button>
+      <button class="btn-nav" onclick="prevQ()">← Prev</button>
+      <button class="btn-nav" id="btn-next" onclick="nextQ()">Next →</button>
+      <button class="btn-sub" id="btn-sub" onclick="openModal()" style="display:none">Submit Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results"></div>
+
+</div><!-- /ctr -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FULL QUESTION BANK  (lecture notes + past papers combined)
+// ═══════════════════════════════════════════════════════════════
+const BANK = [
+
+// ============================================================
+// ACUTE ABDOMINAL PAIN  (20 questions: 3E 9M 8H)
+// ============================================================
+{id:"AAP001",topic:"Acute Abdominal Pain",difficulty:"Easy",source:"LN",
+ q:"Which type of abdominal pain is described as midline, vague, dull, and poorly localised?",
+ o:["Parietal pain","Visceral pain","Referred pain","Somatic pain","Neuropathic pain"],
+ a:1, exp:"Visceral pain is innervated bilaterally by the autonomic nervous system, producing midline, poorly localised, dull pain. Parietal pain is sharp and well localised."},
+
+{id:"AAP002",topic:"Acute Abdominal Pain",difficulty:"Easy",source:"LN",
+ q:"A patient with diffuse peritonitis is most likely to be found in which position?",
+ o:["Writhing and unable to keep still","Lying quietly with knees drawn to chest","Sitting upright leaning forward","Walking around the examination room","Standing with hands on hips"],
+ a:1, exp:"Patients with diffuse peritonitis lie quietly on their side with knees flexed to minimise parietal peritoneal irritation. In contrast, patients with colic (e.g. ureteric) are restless."},
+
+{id:"AAP003",topic:"Acute Abdominal Pain",difficulty:"Easy",source:"LN",
+ q:"Pain from foregut-derived structures typically presents in which abdominal region?",
+ o:["Periumbilical","Suprapubic","Epigastric","Right iliac fossa","Left iliac fossa"],
+ a:2, exp:"Foregut structures (stomach to 2nd part of duodenum, liver, biliary tract, pancreas, spleen) produce epigastric visceral pain. Midgut structures produce periumbilical pain; hindgut structures produce suprapubic pain."},
+
+{id:"AAP004",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"A 25-year-old woman presents with sudden onset lower abdominal pain at midcycle. She is haemodynamically stable with mild peritonism. Urine β-hCG is negative. What is the most likely diagnosis?",
+ o:["Acute appendicitis","Ruptured ectopic pregnancy","Ruptured follicular cyst (mittelschmerz)","Pelvic inflammatory disease","Ovarian torsion"],
+ a:2, exp:"Mittelschmerz occurs at midcycle (ovulation) when a follicular cyst ruptures. Corpus luteum cyst rupture occurs around menses. Negative β-hCG excludes ectopic pregnancy. PID usually has cervical motion tenderness and discharge."},
+
+{id:"AAP005",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"Which physical sign is specifically associated with retrocaecal appendicitis?",
+ o:["Rovsing's sign","Obturator sign","Iliopsoas sign","Cullen's sign","Grey Turner's sign"],
+ a:2, exp:"Iliopsoas sign (pain on passive extension of the right hip) implies retrocaecal appendicitis as the inflamed appendix lies on the psoas muscle. Obturator sign suggests a pelvic appendix. Rovsing's sign indicates peritoneal irritation."},
+
+{id:"AAP006",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"An Alvarado score of 9 in a patient with suspected appendicitis indicates which management?",
+ o:["Observation and analgesia only","Discharge home with oral antibiotics","Repeat USS in 12 hours","High probability — surgical review ± appendicectomy","IV antibiotics alone for 5 days"],
+ a:3, exp:"Alvarado score ≥7 indicates high probability of appendicitis and warrants surgical review ± appendicectomy. Score 5-6 is equivocal (imaging); score 1-4 makes appendicitis unlikely."},
+
+{id:"AAP007",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"Which investigation is the first-line imaging modality for suspected acute appendicitis in a 19-year-old woman?",
+ o:["CT abdomen and pelvis","MRI abdomen","Plain abdominal X-ray","Ultrasound of the right iliac fossa","Diagnostic laparoscopy"],
+ a:3, exp:"Ultrasound is first-line for suspected appendicitis, especially in women of child-bearing age and children, as it avoids ionising radiation and can identify gynaecological pathology. CT has high sensitivity but is reserved for equivocal cases in adults."},
+
+{id:"AAP008",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"Sudden onset abdominal pain (reaching maximum intensity within seconds) is most characteristic of which condition?",
+ o:["Acute appendicitis","Acute pancreatitis","Perforated peptic ulcer","Acute cholecystitis","Mesenteric lymphadenitis"],
+ a:2, exp:"Perforation or rupture (perforated peptic ulcer, ruptured AAA) and infarction cause sudden, instantaneous pain. Appendicitis and cholecystitis have more gradual onset over hours."},
+
+{id:"AAP009",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"A patient has pain out of proportion to physical examination findings. Which diagnosis must be excluded?",
+ o:["Acute appendicitis","Mesenteric ischaemia","Acute pancreatitis","Large bowel obstruction","Sigmoid diverticulitis"],
+ a:1, exp:"Pain out of proportion to examination findings is the classic red-flag for mesenteric ischaemia. Visceral ischaemia produces severe pain without early peritoneal signs because only visceral peritoneum is involved initially."},
+
+{id:"AAP010",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"Corticosteroids are known to mask abdominal signs. Which mechanism explains this?",
+ o:["They cause ileus reducing bowel sounds","They reduce peritoneal inflammation masking guarding and fever","They elevate the WBC baseline making leukocytosis non-diagnostic","They cause autonomic neuropathy","They reduce gastrointestinal motility"],
+ a:1, exp:"Corticosteroids suppress the inflammatory response, masking fever, guarding, and rebound tenderness — making the abdominal examination less reliable. This is especially important in post-transplant or IBD patients."},
+
+{id:"AAP011",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"LN",
+ q:"In acute appendicitis, vomiting characteristically occurs at which stage relative to pain?",
+ o:["Before the onset of pain","Simultaneously with pain","After the onset of pain","Only after perforation","Never in uncomplicated appendicitis"],
+ a:2, exp:"In appendicitis, pain precedes vomiting. When vomiting occurs before pain, gastroenteritis is more likely. This sequence helps differentiate the two conditions clinically."},
+
+{id:"AAP012",topic:"Acute Abdominal Pain",difficulty:"Medium",source:"PP",
+ q:"A 60-year-old man has had a change in bowel habit for 6 months. He passes bloody slime 6 times per day and feels urgency immediately after defecation (tenesmus). What is the most likely diagnosis?",
+ o:["Caecal cancer","Haemorrhoids","Rectal cancer","Anal fissure","Acute diverticulitis"],
+ a:2, exp:"Rectal cancer classically presents with change in bowel habit, passage of blood/mucus, and tenesmus (sensation of incomplete evacuation). Caecal cancer more often presents with iron-deficiency anaemia and right-sided mass."},
+
+{id:"AAP013",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"A pregnant woman at 28 weeks gestation presents with right-sided abdominal pain. Appendicitis is suspected. Which statement best describes the anatomical challenge?",
+ o:["The appendix migrates to the left due to the gravid uterus","The gravid uterus displaces the appendix superiorly and laterally toward the RUQ, complicating localisation","Appendicitis in pregnancy always presents with McBurney's point tenderness","Ultrasound is contraindicated in pregnancy for this indication","The WBC is always normal in pregnant women with appendicitis"],
+ a:1, exp:"In pregnancy the gravid uterus displaces the appendix superiorly and laterally toward the RUQ, causing atypical pain localisation. Separation of visceral and parietal peritoneum also reduces somatic pain component, further masking signs."},
+
+{id:"AAP014",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"A well-localised right iliac fossa mass is found on examination 5 days after onset of appendicitis pain. The patient is apyrexial and WBC is settling. What is the best initial management?",
+ o:["Emergency appendicectomy","Laparotomy and drainage","IV antibiotics with percutaneous drainage if needed, followed by interval appendicectomy 6-12 weeks later","Discharge with oral antibiotics only","Colonoscopy to rule out caecal cancer"],
+ a:2, exp:"A peri-appendiceal abscess/phlegmon in a stable patient is best managed non-operatively: IV antibiotics ± percutaneous drainage, then interval appendicectomy 6-12 weeks later. Immediate surgery has higher complication rates and longer stay."},
+
+{id:"AAP015",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"Which complication of appendicitis is characterised by septic portal vein thrombosis presenting with high fever, jaundice, and hepatic abscess?",
+ o:["Enterocutaneous fistula","Pyelephlebitis","Stump appendicitis","Caecal blow-out","Psoas abscess"],
+ a:1, exp:"Pyelephlebitis is septic portal vein thrombosis caused by E. coli. CT shows thrombus and gas in the portal vein. It requires prompt treatment of the primary infection and broad-spectrum IV antibiotics."},
+
+{id:"AAP016",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"Which statement is TRUE regarding the use of opioid analgesia prior to abdominal examination?",
+ o:["It is absolutely contraindicated as it masks signs","It reduces diagnostic accuracy and should be withheld","It does not reduce diagnostic accuracy and should be given to relieve suffering","It is only safe after CT confirms the diagnosis","It must only be given after surgical consent is obtained"],
+ a:2, exp:"Evidence shows that opioid analgesia given prior to examination does not decrease diagnostic accuracy. Withholding analgesia from patients in pain is unethical. Analgesia may alter exam findings but the overall diagnosis remains achievable."},
+
+{id:"AAP017",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"A retrocaecal appendix that is separated from anterior abdominal peritoneum may cause which unusual symptom cluster?",
+ o:["Haematemesis, melaena, and epigastric pain","Urinary frequency, pyuria, and microscopic haematuria","Chest pain, dyspnoea, and pleural rub","Shoulder tip pain and hiccoughs","Jaundice, dark urine, and clay-coloured stools"],
+ a:1, exp:"When the appendix is retrocaecal or behind the ileum, irritation of adjacent urinary structures can cause urinary frequency, pyuria, and microscopic haematuria mimicking a UTI. This is a classic 'atypical' presentation of appendicitis."},
+
+{id:"AAP018",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"Typhlitis — inflammation of the caecal wall — is most commonly seen in which patient group and how is it managed?",
+ o:["Elderly diabetics; managed with colonoscopy","Immunosuppressed patients on chemotherapy; managed non-operatively","Young athletes; managed with sports drink rehydration","Post-operative patients; managed with nasogastric drainage","Cirrhotic patients; managed with TIPS procedure"],
+ a:1, exp:"Typhlitis (neutropenic colitis) occurs in immunosuppressed patients, especially those on chemotherapy for leukaemia and HIV-positive patients. It is managed non-operatively (bowel rest, IV antibiotics, G-CSF). Surgery is reserved for complications."},
+
+{id:"AAP019",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"After perforated appendicitis with generalised peritonitis is managed with appendicectomy and washout, which postoperative complication is most likely if the wound is primarily closed?",
+ o:["Anastomotic leak","Wound infection — increased from 3% to 4.7% with primary closure not recommended","Deep vein thrombosis","Port-site hernia","Bile leak"],
+ a:1, exp:"Wound infection rate increases from ~3% in uncomplicated appendicitis to ~4.7% with perforation. Primary closure is NOT recommended in the setting of perforation; wounds should be left open or managed with delayed primary closure."},
+
+{id:"AAP020",topic:"Acute Abdominal Pain",difficulty:"Hard",source:"LN",
+ q:"In a patient with small-bowel obstruction, which clinical feature helps differentiate strangulation from simple obstruction?",
+ o:["Colicky pain only","Increased bowel sounds","Constant severe pain, tachycardia, fever, and peritoneal signs","Bilious vomiting","Absolute constipation"],
+ a:2, exp:"Strangulation (ischaemia) is suggested by constant severe pain (rather than colicky), tachycardia, fever, and peritoneal signs — indicating bowel ischaemia. Simple obstruction produces colicky pain without these systemic features."},
+
+// ============================================================
+// BILIARY TRACT  (18 questions: 3E 8M 7H)
+// ============================================================
+{id:"BIL001",topic:"Biliary Tract",difficulty:"Easy",source:"LN",
+ q:"Which are the classic risk factors for cholesterol gallstones? (The '4 Fs')",
+ o:["Fat, Fertile, Female, Forty","Fair, Fit, Fast, Fearful","Fever, Fluid, Flatulence, Fat","Fat, Febrile, Fasted, Fifty","Female, Foreign-born, Fixed, Forgetful"],
+ a:0, exp:"The '4 Fs' are Fat, Fertile, Female, Forty — the classic risk factors for cholesterol gallstone formation. Oestrogen increases hepatic cholesterol secretion and reduces bile acid concentration."},
+
+{id:"BIL002",topic:"Biliary Tract",difficulty:"Easy",source:"LN",
+ q:"Murphy's sign is positive in which condition?",
+ o:["Acute pancreatitis","Acute cholecystitis","Choledocholithiasis","Hepatic abscess","Ascending cholangitis"],
+ a:1, exp:"Murphy's sign is inspiratory arrest on deep palpation of the right upper quadrant (the inflamed gallbladder descends into the examiner's hand on inspiration). It is the hallmark sign of acute cholecystitis."},
+
+{id:"BIL003",topic:"Biliary Tract",difficulty:"Easy",source:"LN",
+ q:"What percentage of adult gallstones are cholesterol stones in Western countries?",
+ o:["25%","50%","65%","85%","95%"],
+ a:3, exp:"In Western countries, cholesterol stones account for approximately 85% of all gallstones. Pigment stones (black and brown) make up the remaining 15%."},
+
+{id:"BIL004",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"Charcot's triad of ascending cholangitis consists of which three features?",
+ o:["Right upper quadrant pain, fever, jaundice","Fever, jaundice, altered consciousness","Pain, jaundice, hypotension","Fever, vomiting, and diarrhoea","RUQ pain, leukocytosis, and elevated amylase"],
+ a:0, exp:"Charcot's triad = RUQ pain + fever/rigors + jaundice. Reynolds' pentad adds shock and altered consciousness. Charcot's triad occurs in ascending cholangitis from CBD obstruction with bacterial superinfection."},
+
+{id:"BIL005",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"A 45-year-old woman has RUQ pain, fever, and jaundice. Ultrasound shows dilated CBD (12 mm) with echogenic material. What is the most appropriate initial management?",
+ o:["Elective laparoscopic cholecystectomy in 6 weeks","IV antibiotics and ERCP with stone extraction","Immediate laparotomy","Oral ursodeoxycholic acid","Percutaneous transhepatic cholangiography only"],
+ a:1, exp:"Choledocholithiasis with ascending cholangitis is treated with IV antibiotics and urgent ERCP for bile duct decompression and stone extraction. Delayed cholecystectomy follows to remove the source (gallbladder)."},
+
+{id:"BIL006",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"Which ultrasound finding is most characteristic of acute cholecystitis?",
+ o:["CBD dilatation >8 mm","Gallbladder wall thickening >3 mm with pericholecystic fluid and sonographic Murphy's sign","Gallbladder polyp >10 mm","Pneumobilia","Gallstone impacted in the neck of the gallbladder only"],
+ a:1, exp:"Acute cholecystitis on ultrasound: wall thickening >3 mm, pericholecystic fluid, and a positive sonographic Murphy's sign (pain on probe pressure over gallbladder). Gallstones may or may not be visible."},
+
+{id:"BIL007",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"What is the normal diameter of the common bile duct on ultrasound?",
+ o:["<3 mm","<5 mm","<8 mm","<12 mm","<15 mm"],
+ a:2, exp:"Normal CBD diameter is <8 mm (some sources use 6 mm; post-cholecystectomy may be up to 10 mm). Dilatation >8 mm suggests obstruction and warrants further investigation (MRCP or ERCP)."},
+
+{id:"BIL008",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"A patient with known gallstones presents with obstructive jaundice. Biochemistry shows elevated conjugated bilirubin, elevated ALP, and mildly elevated AST. Which investigation provides both diagnosis and therapy for CBD stones?",
+ o:["MRCP","CT abdomen","Transabdominal ultrasound","ERCP","Laparoscopic cholecystectomy"],
+ a:3, exp:"ERCP (endoscopic retrograde cholangiopancreatography) allows direct visualisation of the bile duct, sphincterotomy, and stone extraction — providing both diagnosis and treatment. MRCP is diagnostic only."},
+
+{id:"BIL009",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"Mirizzi syndrome occurs when a gallstone impacts in which location?",
+ o:["The ampulla of Vater","The cystic duct or Hartmann's pouch, compressing the common hepatic duct","The common bile duct","The duodenum causing gastric outlet obstruction","The pancreatic duct"],
+ a:1, exp:"Mirizzi syndrome: a gallstone impacted in the cystic duct or Hartmann's pouch externally compresses the common hepatic duct, causing obstructive jaundice despite no stone in the CBD."},
+
+{id:"BIL010",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"Biliary colic pain differs from other 'colic' pain in which important way?",
+ o:["It always radiates to the back","It tends to be constant rather than waxing and waning","It is located in the left upper quadrant","It resolves with antacids","It is associated with bloody diarrhoea"],
+ a:1, exp:"Despite being called 'biliary colic', the pain is characteristically constant (not truly colicky/waxing-waning) as it results from sustained distension of the gallbladder against a stone obstruction rather than peristalsis against obstruction."},
+
+{id:"BIL011",topic:"Biliary Tract",difficulty:"Medium",source:"LN",
+ q:"Which type of gallstone is associated with haemolytic anaemia (e.g. hereditary spherocytosis, sickle cell disease)?",
+ o:["Cholesterol stones","Black pigment stones","Brown pigment stones","Mixed stones","Calcium carbonate stones"],
+ a:1, exp:"Black pigment stones are composed of calcium bilirubinate and form in the gallbladder in conditions with increased bilirubin turnover, such as haemolytic anaemia. Brown stones form in the bile ducts and are associated with infection."},
+
+{id:"BIL012",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"Reynolds' pentad, indicating severe ascending cholangitis with septic shock, adds which two features to Charcot's triad?",
+ o:["Rigors and vomiting","Hypotension and altered mental status","Hepatomegaly and splenomegaly","Anaemia and thrombocytopenia","Pruritus and steatorrhoea"],
+ a:1, exp:"Reynolds' pentad = Charcot's triad (RUQ pain + fever + jaundice) + hypotension + altered consciousness. This indicates severe cholangitis requiring emergency biliary decompression (urgent ERCP or PTC)."},
+
+{id:"BIL013",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"A patient with gallstone pancreatitis has elevated amylase and lipase. After initial conservative management, when should cholecystectomy be performed?",
+ o:["Immediately during the same admission when pancreatitis resolves (within 2 weeks)","Only after 3 months","Never — gallstone pancreatitis is managed by ERCP alone","After repeated attacks only","After confirming pancreatic necrosis has resolved on CT"],
+ a:0, exp:"Index admission cholecystectomy (during the same admission, after pancreatitis resolves) is recommended for mild gallstone pancreatitis to prevent recurrence. Delayed cholecystectomy carries 25-30% risk of recurrent pancreatitis."},
+
+{id:"BIL014",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"A 70-year-old man presents with progressive painless jaundice, dark urine, pale stools, and weight loss. Ultrasound shows double duct sign (dilated CBD and pancreatic duct). What is the likely diagnosis?",
+ o:["Choledocholithiasis","Primary sclerosing cholangitis","Carcinoma of the head of the pancreas","Acute cholecystitis","Mirizzi syndrome"],
+ a:2, exp:"Progressive painless jaundice + weight loss + double duct sign on imaging = pancreatic head carcinoma until proven otherwise. Courvoisier's sign (palpable non-tender gallbladder) may also be present. CBD stones cause painful jaundice."},
+
+{id:"BIL015",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"Courvoisier's law states that in a jaundiced patient, a palpable non-tender gallbladder suggests malignant obstruction rather than gallstones. Why does chronic cholelithiasis NOT produce a palpable gallbladder?",
+ o:["Gallstones prevent gallbladder distension","Chronic inflammation makes the gallbladder fibrotic and non-distensible","Gallstones accelerate gallbladder emptying","The gallbladder atrophies in response to stones","The gallbladder is surgically removed before jaundice develops"],
+ a:1, exp:"Longstanding gallstone disease causes recurrent cholecystitis with fibrosis, making the gallbladder thickened and non-distensible. Malignant obstruction causes gradual distension of a non-inflamed gallbladder — producing a palpable, non-tender organ."},
+
+{id:"BIL016",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"Empyematous cholecystitis, a severe form of acute cholecystitis, is characterised by gas in the gallbladder wall and is most associated with which organism?",
+ o:["Streptococcus pneumoniae","Clostridium perfringens (gas-forming organism)","Helicobacter pylori","Bacteroides fragilis","Klebsiella pneumoniae"],
+ a:1, exp:"Emphysematous cholecystitis is caused by gas-forming organisms, most commonly Clostridium perfringens, and occurs more frequently in diabetic and elderly men. It requires urgent cholecystectomy and broad-spectrum antibiotics."},
+
+{id:"BIL017",topic:"Biliary Tract",difficulty:"Hard",source:"PP",
+ q:"A 46-year-old woman returns 48 hours after laparoscopic cholecystectomy with progressive RUQ pain radiating to the shoulder, nausea, and vomiting. Her abdomen is rigid. LFTs show bilirubin 60 mmol/L, ALP 550 IU/L, ALT 220 IU/L. What is the most likely diagnosis and initial investigation?",
+ o:["Pulmonary embolism; D-dimer","Bile leak with biloma; CT abdomen","Anastomotic ulcer; upper GI endoscopy","Hepatic artery thrombosis; Doppler ultrasound","Wound infection; wound swab"],
+ a:1, exp:"Bile leak post-cholecystectomy causes biliary peritonitis — RUQ pain, shoulder tip pain, peritonism, and raised LFTs. CT abdomen confirms a biloma. ERCP with biliary stenting or HIDA scan can then localise the leak."},
+
+{id:"BIL018",topic:"Biliary Tract",difficulty:"Hard",source:"LN",
+ q:"Primary sclerosing cholangitis (PSC) is strongly associated with which inflammatory bowel disease?",
+ o:["Crohn's disease (colonic)","Ulcerative colitis","Microscopic colitis","Coeliac disease","Ischaemic colitis"],
+ a:1, exp:"PSC is associated with ulcerative colitis in approximately 80% of cases. It causes multifocal stricturing of intra- and extrahepatic bile ducts, leading to biliary cirrhosis and increased risk of cholangiocarcinoma."},
+
+// ============================================================
+// BREAST CANCER  (18 questions: 3E 8M 7H)
+// ============================================================
+{id:"BRE001",topic:"Breast Cancer",difficulty:"Easy",source:"LN",
+ q:"What is the most common presenting symptom of breast cancer?",
+ o:["Nipple discharge","Skin retraction","Axillary lymphadenopathy","Solitary breast lump","Breast pain"],
+ a:3, exp:"A solitary breast lump accounts for approximately 75% of breast cancer presentations. Pain is an uncommon presenting feature of breast cancer (~3%), occurring more frequently in benign conditions."},
+
+{id:"BRE002",topic:"Breast Cancer",difficulty:"Easy",source:"LN",
+ q:"Which feature of a breast lump on clinical examination is most suspicious for malignancy?",
+ o:["Smooth, well-defined, mobile, soft lump","Hard, irregular, fixed, painless lump with skin tethering","Tender, fluctuant lump that transilluminates","Bilateral symmetrical nodularity","Soft lump that disappears completely on lifting the arm"],
+ a:1, exp:"Malignant breast lumps are typically hard, irregular (stellate), fixed to underlying tissue or skin, and painless. Skin tethering (dimpling) results from Cooper's ligament involvement — a characteristic sign of breast cancer."},
+
+{id:"BRE003",topic:"Breast Cancer",difficulty:"Easy",source:"LN",
+ q:"Paget's disease of the nipple is associated with which underlying condition?",
+ o:["Benign duct ectasia","Underlying ductal carcinoma in situ or invasive breast cancer","Prolactinoma","Mastitis","Fat necrosis"],
+ a:1, exp:"Paget's disease of the nipple presents as an eczematous, erythematous rash of the nipple-areolar complex. It is always associated with underlying DCIS or invasive carcinoma and must be distinguished from eczema."},
+
+{id:"BRE004",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"A 45-year-old woman presents with a breast lump. Triple assessment includes which three components?",
+ o:["History, physical examination, mammogram","Clinical examination, imaging (USS/mammogram), and tissue biopsy (core/FNAC)","Blood tumour markers, CT scan, and bone scan","MRI, PET scan, and sentinel node biopsy","Mammogram, ductoscopy, and nipple smear"],
+ a:1, exp:"Triple assessment = (1) Clinical examination, (2) Imaging (ultrasound ± mammogram), (3) Tissue sampling (core needle biopsy or FNAC). All three components are required for accurate diagnosis. Each alone has insufficient specificity."},
+
+{id:"BRE005",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"Which imaging modality is preferred for breast assessment in women under 35 years of age?",
+ o:["Mammography","CT scan","MRI","Ultrasound","PET scan"],
+ a:3, exp:"Ultrasound is preferred in women <35 years as dense breast tissue limits mammographic sensitivity. Mammography is preferred in women >35 years. MRI is used for high-risk screening, extent of disease, or implant evaluation."},
+
+{id:"BRE006",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"Inflammatory breast cancer presents with which clinical features?",
+ o:["A single discrete hard lump with overlying ulceration","Diffuse breast erythema, oedema (peau d'orange), warmth, and tenderness without a discrete mass","Bilateral gynaecomastia","Green nipple discharge","Retracted nipple with microcalcification on mammogram"],
+ a:1, exp:"Inflammatory breast cancer: rapid onset erythema, oedema, peau d'orange (lymphatic blockage causing skin thickening), warmth. No discrete lump. It mimics mastitis but does not respond to antibiotics. It is T4d and has poor prognosis."},
+
+{id:"BRE007",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"Which lymph node group receives primary lymphatic drainage from the breast?",
+ o:["Supraclavicular nodes","Internal mammary nodes","Axillary nodes (Level I, II, III)","Para-aortic nodes","Inguinal nodes"],
+ a:2, exp:"Approximately 75-80% of breast lymphatic drainage goes to axillary nodes (Levels I-III). Internal mammary nodes receive drainage from the medial breast. Sentinel lymph node biopsy samples the first draining node(s) in the axilla."},
+
+{id:"BRE008",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"A core biopsy of a breast lump returns as B5b (invasive malignancy). What does 'B5a' represent in the B-classification system?",
+ o:["Normal breast tissue","Benign lesion","Atypia — uncertain malignant potential","Suspicious for malignancy","Ductal carcinoma in situ (non-invasive malignancy)"],
+ a:4, exp:"B classification: B1=normal, B2=benign, B3=uncertain malignant potential, B4=suspicious, B5a=in-situ (DCIS), B5b=invasive malignancy. B5a helps plan surgery as DCIS may not require axillary staging."},
+
+{id:"BRE009",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"A 60-year-old woman has a T2N1M0 breast cancer. Which additional investigation is most important for staging before planning treatment?",
+ o:["Brain MRI","Bone scan and CT chest/abdomen/pelvis to assess for distant metastases","Colonoscopy","Thyroid scan","Echocardiogram"],
+ a:1, exp:"For locally advanced or node-positive breast cancer (≥T2N1), systemic staging (CT chest/abdomen/pelvis + bone scan or PET-CT) is required to exclude distant metastases before committing to curative surgery."},
+
+{id:"BRE010",topic:"Breast Cancer",difficulty:"Medium",source:"LN",
+ q:"Male breast cancer accounts for what proportion of all breast cancers?",
+ o:["Less than 1%","5-10%","10-15%","20%","Equal to female breast cancer"],
+ a:0, exp:"Male breast cancer is rare, accounting for <1% of all breast cancers. BRCA2 mutation is the most important risk factor in males. It often presents later than in women due to lack of screening awareness."},
+
+{id:"BRE011",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"A patient with HER2-positive breast cancer is to receive trastuzumab (Herceptin). Which investigation must be performed before commencing this agent?",
+ o:["Liver biopsy","Echocardiogram (to assess LVEF)","Bone marrow biopsy","Pulmonary function tests","Renal biopsy"],
+ a:1, exp:"Trastuzumab (anti-HER2 monoclonal antibody) causes cardiotoxicity, specifically left ventricular dysfunction. Baseline LVEF must be measured by echocardiogram or MUGA scan and monitored throughout treatment."},
+
+{id:"BRE012",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"Which histological subtype of breast cancer is characterised by mucin production and has a relatively better prognosis?",
+ o:["Invasive ductal carcinoma NOS","Lobular carcinoma","Mucinous (colloid) carcinoma","Inflammatory carcinoma","Metaplastic carcinoma"],
+ a:2, exp:"Mucinous (colloid) carcinoma is characterised by tumour cells floating in abundant extracellular mucin. It has a better prognosis than invasive ductal NOS, with lower rates of nodal metastasis and higher survival rates."},
+
+{id:"BRE013",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"A woman with a BRCA1 mutation has a lifetime risk of breast cancer of approximately:",
+ o:["10-15%","25-30%","40-50%","60-80%","Almost 100%"],
+ a:3, exp:"BRCA1 mutation carriers have a lifetime breast cancer risk of approximately 60-80% (some estimates 55-72%). BRCA2 carriers have ~45-70% lifetime risk. Risk-reduction strategies include enhanced surveillance, chemoprevention, or prophylactic mastectomy."},
+
+{id:"BRE014",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"Malignant phyllodes tumour of the breast differs from invasive ductal carcinoma in which important way?",
+ o:["Phyllodes tumour metastasises via lymphatics to axillary nodes","Phyllodes tumour is always benign","Phyllodes tumour metastasises haematogenously (lungs), and axillary node dissection is not routinely performed","Phyllodes tumour is hormone receptor positive","Phyllodes tumour is treated with radiotherapy only"],
+ a:2, exp:"Malignant phyllodes tumours spread haematogenously (most commonly to the lungs) rather than via lymphatics. Axillary clearance is therefore not routinely performed. Wide local excision with clear margins is the mainstay of treatment."},
+
+{id:"BRE015",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"In sentinel lymph node biopsy for breast cancer, what is the significance of isolated tumour cells (ITC <0.2 mm) in the sentinel node?",
+ o:["Mandates immediate axillary clearance","Classified as pN0(i+) — not considered true nodal metastasis; no further axillary treatment required","Classified as pN1mi — requires radiotherapy only","Classified as pN3 — requires chemotherapy","Requires repeat biopsy of the sentinel node"],
+ a:1, exp:"ITCs (<0.2 mm, <200 cells) are classified as pN0(i+). They are not considered true nodal metastases. Micrometastases (0.2-2 mm) = pN1mi. Only macrometastases (>2 mm) = pN1 and traditionally triggered axillary management."},
+
+{id:"BRE016",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"Which breast cancer subtype is defined by absence of ER, PR, and HER2 overexpression, and has the poorest prognosis?",
+ o:["Luminal A (ER+PR+HER2-)","HER2-enriched (ER-PR-HER2+)","Luminal B (ER+PR-HER2+)","Triple-negative (ER-PR-HER2-)","Luminal B (ER+HER2-)"],
+ a:3, exp:"Triple-negative breast cancer (TNBC) lacks ER, PR, and HER2 expression. It has the worst prognosis, highest recurrence rate, and cannot be targeted by hormonal or HER2-directed therapy. It is associated with BRCA1 mutations."},
+
+{id:"BRE017",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"A woman with a fibroadenoma is reassured it is benign. However, which specific feature of a fibroadenoma warrants excision biopsy?",
+ o:["Size <2 cm in a woman under 25","Smooth, mobile, non-tender consistency","Size >3 cm, rapid growth, or age >35","Bilateral occurrence","Occurrence in the upper outer quadrant"],
+ a:2, exp:"Fibroadenomas >3 cm, those that are rapidly enlarging, or those in women >35 warrant excision to exclude a phyllodes tumour. Giant fibroadenomas (>5 cm) should always be excised."},
+
+{id:"BRE018",topic:"Breast Cancer",difficulty:"Hard",source:"LN",
+ q:"Which statement correctly describes the difference between wide local excision (WLE) and mastectomy in terms of oncological outcome?",
+ o:["Mastectomy provides significantly better overall survival than WLE","WLE with radiotherapy provides equivalent overall survival to mastectomy but with higher local recurrence rates","WLE with radiotherapy and mastectomy provide equivalent overall survival; WLE has higher local recurrence without radiotherapy","Mastectomy is always required for cancers >2 cm","WLE cannot be combined with radiotherapy"],
+ a:2, exp:"Landmark trials (Fisher et al.; Veronesi et al.) showed that WLE + radiotherapy provides equivalent overall survival to mastectomy. However, WLE without radiotherapy has significantly higher local recurrence. Radiotherapy is therefore mandatory with breast-conserving surgery."},
+
+// ============================================================
+// GI DISEASES  (16 questions: 2E 7M 7H)
+// ============================================================
+{id:"GI001",topic:"GI Diseases",difficulty:"Easy",source:"LN",
+ q:"Haematemesis that is coffee-ground in appearance indicates which process?",
+ o:["Active arterial bleeding in the upper GI tract","Blood that has been partially digested by gastric acid (slow or stopped bleeding)","Bleeding from the lower GI tract","Bile-stained vomiting","Pancreatic bleeding"],
+ a:1, exp:"Coffee-ground vomiting results from blood that has been partially digested by gastric acid, converting haemoglobin to haematin. It indicates slow or stopped upper GI bleeding. Bright red haematemesis suggests rapid, active bleeding."},
+
+{id:"GI002",topic:"GI Diseases",difficulty:"Easy",source:"LN",
+ q:"A patient presenting with epigastric pain, haematemesis, and relief of pain with eating most likely has which diagnosis?",
+ o:["Duodenal ulcer","Gastric ulcer","Acute pancreatitis","Oesophageal cancer","Gastric cancer"],
+ a:0, exp:"Duodenal ulcer classically presents with epigastric pain that is relieved by eating (food buffers acid) and returns 2-3 hours later. Gastric ulcer pain is worsened by eating (food stimulates acid). H. pylori is the most common cause."},
+
+{id:"GI003",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"Melaena is defined as black, tarry, offensive-smelling stools. It occurs when blood loss from the upper GI tract exceeds approximately:",
+ o:["20 mL per day","50-60 mL per day","100 mL per day","200 mL per day","500 mL per day"],
+ a:1, exp:"Melaena occurs when upper GI blood loss exceeds ~50-60 mL. The black tarry appearance results from haem being converted to haematin by intestinal bacteria and gastric acid during transit through the bowel."},
+
+{id:"GI004",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"A 55-year-old man presents with progressive dysphagia — initially to solids, then liquids — with weight loss and retrosternal discomfort. What is the most likely diagnosis?",
+ o:["Achalasia","Pharyngeal pouch","Oesophageal carcinoma","GORD","Iron deficiency anaemia causing Plummer-Vinson syndrome"],
+ a:2, exp:"Progressive dysphagia (solids → liquids), weight loss, and age >50 is oesophageal carcinoma until proven otherwise. Achalasia causes dysphagia to both solids and liquids from the outset."},
+
+{id:"GI005",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"A 70-year-old woman presents with iron-deficiency anaemia, change in bowel habit, and a palpable right-sided abdominal mass. Which investigation is most appropriate?",
+ o:["Upper GI endoscopy","Flexible sigmoidoscopy","Colonoscopy and CT staging","Barium enema","Capsule endoscopy"],
+ a:2, exp:"Right-sided colonic (caecal/ascending) cancer classically presents with iron-deficiency anaemia, vague RIF mass, and altered bowel habit without rectal bleeding (as stools are liquid). Colonoscopy provides diagnosis; CT staging assesses spread."},
+
+{id:"GI006",topic:"GI Diseases",difficulty:"Medium",source:"PP",
+ q:"In assessment of varicose veins, the Trendelenburg test is performed with the patient in which position?",
+ o:["Standing erect","Lying down (supine)","Sitting","Prone","Walking on a treadmill"],
+ a:1, exp:"In the Trendelenburg test, the patient lies supine, the leg is elevated to empty veins, and a tourniquet is applied. The patient then stands. If veins refill only when the tourniquet is released, sapheno-femoral incompetence is confirmed."},
+
+{id:"GI007",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"Which complication of peptic ulcer disease is associated with pyloric stenosis, presenting with projectile non-bilious vomiting of old food?",
+ o:["Haemorrhage","Perforation","Gastric outlet obstruction","Malignant transformation","Pancreatitis"],
+ a:2, exp:"Pyloric stenosis from recurrent peptic ulceration causes gastric outlet obstruction. Non-bilious (as obstruction is proximal to ampulla) projectile vomiting of old/undigested food, succussion splash, and hypochloraemic hypokalaemic metabolic alkalosis."},
+
+{id:"GI008",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"Cauda equina haemorrhoids (haemorrhoids that have prolapsed and cannot be reduced) are classified as which degree?",
+ o:["First degree","Second degree","Third degree","Fourth degree","External haemorrhoids"],
+ a:3, exp:"Haemorrhoid classification: 1st=bleed only, 2nd=prolapse but reduce spontaneously, 3rd=prolapse requiring manual reduction, 4th=permanently prolapsed and irreducible. 4th degree hemorrhoids may strangulate."},
+
+{id:"GI009",topic:"GI Diseases",difficulty:"Medium",source:"LN",
+ q:"Bilious vomiting in a neonate on day 1-2 of life suggests obstruction at which anatomical level?",
+ o:["Proximal to the pylorus","Distal to the ampulla of Vater (bile duct)","In the oesophagus","At the pylorus","At the anal canal"],
+ a:1, exp:"Bilious (bile-stained) vomiting in a neonate indicates obstruction distal to the ampulla of Vater (where bile enters the duodenum). Causes include duodenal atresia, malrotation with volvulus, Hirschsprung's disease. This is a surgical emergency."},
+
+{id:"GI010",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"A patient with longstanding GORD develops dysphagia. Endoscopy shows columnar metaplasia replacing squamous epithelium in the distal oesophagus. What is this condition and its significance?",
+ o:["Oesophageal web — a benign finding requiring no follow-up","Barrett's oesophagus — pre-malignant condition with risk of adenocarcinoma","Candida oesophagitis — treat with antifungals","Achalasia — treat with pneumatic dilatation","Schatzki ring — treat with dilatation"],
+ a:1, exp:"Barrett's oesophagus is columnar intestinal metaplasia of the distal oesophagus in response to chronic acid exposure. It is a pre-malignant condition with 0.5-1%/year risk of progressing to oesophageal adenocarcinoma. Endoscopic surveillance is required."},
+
+{id:"GI011",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"A patient with Crohn's disease undergoes multiple small bowel resections totalling 150 cm of terminal ileum. Which nutritional deficiency is most predictable?",
+ o:["Iron deficiency only","Vitamin C deficiency","Vitamin B12 and fat-soluble vitamin deficiency (A, D, E, K) due to bile salt malabsorption","Calcium deficiency only","Zinc deficiency only"],
+ a:2, exp:"The terminal ileum exclusively absorbs vitamin B12 (intrinsic factor complex) and bile salts. Extensive terminal ileal resection causes B12 deficiency (pernicious anaemia picture) and bile salt malabsorption leading to fat-soluble vitamin (A,D,E,K) deficiency and steatorrhoea."},
+
+{id:"GI012",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"Which scoring system is used to stratify risk after upper GI haemorrhage?",
+ o:["Ranson's criteria","Rockall score","APACHE II","Child-Pugh score","Blatchford score (also the Rockall score)"],
+ a:4, exp:"The Blatchford score is used pre-endoscopy to decide on admission/urgent endoscopy. The Rockall score (pre- and post-endoscopy) predicts rebleeding and mortality. Both are validated for upper GI haemorrhage risk stratification."},
+
+{id:"GI013",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"A patient undergoes a Whipple's procedure (pancreaticoduodenectomy). Which structures are resected in a standard Whipple's?",
+ o:["Stomach, oesophagus, and proximal jejunum","Head of pancreas, duodenum, distal common bile duct, gallbladder, and distal stomach (antrum)","Entire pancreas, spleen, and colon","Stomach, proximal jejunum, and spleen","Liver, gallbladder, and CBD"],
+ a:1, exp:"Standard Whipple's (pancreaticoduodenectomy): head of pancreas + duodenum + distal CBD + gallbladder + gastric antrum are resected. Reconstruction involves pancreaticojejunostomy, hepaticojejunostomy, and gastrojejunostomy."},
+
+{id:"GI014",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"A patient has severe acute colitis (6+ bloody stools/day, fever, tachycardia, CRP >45). They fail 72 hours of IV steroids. What is the next appropriate step?",
+ o:["Increase the dose of IV steroids","Add oral mesalazine","Rescue therapy with infliximab or ciclosporin, or colectomy","Colonoscopy to assess extent","Discharge with oral prednisolone"],
+ a:2, exp:"Acute severe ulcerative colitis (Travis criteria) failing 72h of IV steroids requires rescue therapy: infliximab (anti-TNF) or ciclosporin (calcineurin inhibitor). If rescue fails or the patient deteriorates → emergency colectomy. The Truelove-Witts criteria define severity."},
+
+{id:"GI015",topic:"GI Diseases",difficulty:"Hard",source:"PP",
+ q:"A 70-year-old man with prominent veins around the umbilicus (caput medusae) most likely has which underlying condition?",
+ o:["Acute pancreatitis","Gastric cancer","Peptic ulcer disease","Liver cirrhosis with portal hypertension","Oesophageal cancer"],
+ a:3, exp:"Caput medusae — dilated periumbilical veins radiating from the umbilicus — is caused by portal hypertension (most commonly from liver cirrhosis). Blood is shunted through the umbilical vein collaterals to the abdominal wall veins."},
+
+{id:"GI016",topic:"GI Diseases",difficulty:"Hard",source:"LN",
+ q:"Which gene mutation is responsible for familial adenomatous polyposis (FAP), and what is the cancer risk without treatment?",
+ o:["BRCA1 — 80% lifetime cancer risk","APC gene on chromosome 5 — 100% lifetime colorectal cancer risk without colectomy","MLH1 — 70% lifetime cancer risk","K-RAS — 60% lifetime cancer risk","TP53 — 90% cancer risk"],
+ a:1, exp:"FAP is caused by germline APC mutation (chromosome 5q21). Hundreds to thousands of colorectal polyps develop by age 20-30. Without prophylactic colectomy, virtually 100% develop colorectal cancer by age 40-50."},
+
+// ============================================================
+// HEAD INJURY  (16 questions: 2E 7M 7H)
+// ============================================================
+{id:"HI001",topic:"Head Injury",difficulty:"Easy",source:"LN",
+ q:"What is the Glasgow Coma Scale (GCS) used to assess?",
+ o:["Pupil reactivity only","Level of consciousness using eye opening, verbal response, and motor response","Blood pressure and heart rate in head injury","Skull fracture on X-ray","Presence of intracranial bleeding on CT"],
+ a:1, exp:"The GCS assesses level of consciousness using three components: Eye opening (E, 1-4), Verbal response (V, 1-5), Motor response (M, 1-6). Maximum score = 15 (normal), minimum = 3 (deep coma). Severe TBI = GCS ≤8."},
+
+{id:"HI002",topic:"Head Injury",difficulty:"Easy",source:"LN",
+ q:"Which GCS score defines severe traumatic brain injury?",
+ o:["GCS 13-15","GCS 9-12","GCS 8 or less","GCS 6 or less","GCS 3 only"],
+ a:2, exp:"Severity: Mild TBI = GCS 13-15; Moderate = GCS 9-12; Severe = GCS ≤8. A GCS ≤8 indicates inability to protect the airway and mandates intubation. Severe TBI requires immediate CT and neurosurgical assessment."},
+
+{id:"HI003",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"A patient sustains head injury and has a lucid interval followed by rapid neurological deterioration. Which intracranial haematoma does this describe?",
+ o:["Subdural haematoma","Intracerebral haemorrhage","Extradural (epidural) haematoma","Subarachnoid haemorrhage","Diffuse axonal injury"],
+ a:2, exp:"Extradural (epidural) haematoma classically causes a 'lucid interval' — brief loss of consciousness, recovery, then rapid deterioration as the haematoma expands and compresses the brain. It results from middle meningeal artery rupture, often with temporal bone fracture."},
+
+{id:"HI004",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"A CT head shows a biconvex (lens-shaped) hyperdense collection between the skull and dura. Which diagnosis is confirmed?",
+ o:["Acute subdural haematoma (crescent-shaped)","Extradural haematoma (biconvex, hyperdense)","Cerebral contusion","Subarachnoid haemorrhage","Hygroma"],
+ a:1, exp:"Extradural haematoma appears as a biconvex (lenticular/lens-shaped) hyperdense lesion on CT, because the collection is bounded by the firmly attached dura. Subdural haematomas are crescent-shaped, conforming to the brain surface."},
+
+{id:"HI005",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"Which clinical sign indicates transtentorial herniation (uncal herniation) in a head-injured patient?",
+ o:["Bilateral miosis (pinpoint pupils)","Unilateral fixed and dilated pupil on the same side as the expanding haematoma","Bilateral fixed dilated pupils only in brainstem death","Nystagmus","Bilateral ptosis"],
+ a:1, exp:"Transtentorial (uncal) herniation compresses the ipsilateral CN III (oculomotor nerve), causing unilateral fixed and dilated pupil (blown pupil) on the side of the haematoma. This is a neurosurgical emergency — burr hole decompression required."},
+
+{id:"HI006",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"Cushing's triad indicates impending brainstem herniation. It consists of which three features?",
+ o:["Fever, tachycardia, and hypotension","Hypertension, bradycardia, and irregular respiration","Tachycardia, diaphoresis, and pupil dilatation","Hypotension, bradycardia, and hypothermia","Fever, confusion, and leukocytosis"],
+ a:1, exp:"Cushing's triad = hypertension (reflex to maintain cerebral perfusion) + bradycardia (vagal response) + irregular respiration. It indicates severely raised ICP with impending brainstem herniation and demands immediate intervention."},
+
+{id:"HI007",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"Primary brain injury occurs at the moment of impact. Which statement describes secondary brain injury?",
+ o:["Injury caused by direct mechanical forces on impact","Haemorrhage into the skull at the point of injury","Consecutive pathological processes (hypoxia, hypotension, oedema, raised ICP) initiated after the primary insult","Skull fractures that occur at the time of impact","Haematoma that develops within minutes of trauma"],
+ a:2, exp:"Secondary brain injury results from pathological cascades following the primary insult: hypoxia, hypercapnia, hypotension, cerebral oedema, raised ICP, excitotoxicity, and inflammation. Prevention and treatment of secondary injury is the focus of TBI management."},
+
+{id:"HI008",topic:"Head Injury",difficulty:"Medium",source:"LN",
+ q:"A 'talk and die' patient with head injury initially converses but deteriorates. Which haematoma type most commonly causes this pattern?",
+ o:["Intracerebral haemorrhage only","Both extradural and acute subdural haematoma","Subarachnoid haemorrhage only","Diffuse axonal injury","Contusion only"],
+ a:1, exp:"The 'talk and die' pattern can occur with both extradural haematoma (classic lucid interval) and acute subdural haematoma (may have brief lucid period before deterioration from expanding mass effect). Both require urgent surgical evacuation."},
+
+{id:"HI009",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"A patient has a base of skull fracture. Which clinical signs on examination confirm this diagnosis?",
+ o:["Tender scalp with overlying laceration","Battle's sign (bruising over mastoid) and raccoon eyes (periorbital ecchymosis), plus CSF rhinorrhoea or otorrhoea","Depressed skull fracture on palpation","Bilateral long tract signs","Fixed and dilated pupils"],
+ a:1, exp:"Base of skull fracture signs: Battle's sign (mastoid bruising, posterior fossa fracture), raccoon/panda eyes (periorbital ecchymosis, anterior fossa fracture), CSF rhinorrhoea or otorrhoea (dural tear), haemotympanum. These develop hours after injury."},
+
+{id:"HI010",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"What is the target cerebral perfusion pressure (CPP) in severe traumatic brain injury management?",
+ o:["CPP <40 mmHg","CPP 40-50 mmHg","CPP 60-70 mmHg","CPP >90 mmHg","CPP >100 mmHg"],
+ a:2, exp:"CPP = MAP - ICP. Target CPP is 60-70 mmHg in severe TBI. ICP should be kept <20-22 mmHg. Strategies: head elevation 30°, osmotherapy (mannitol/hypertonic saline), sedation, controlled hyperventilation, and surgical decompression if needed."},
+
+{id:"HI011",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"Diffuse axonal injury (DAI) results from which mechanism and what does CT head typically show?",
+ o:["Direct blunt impact; large hyperdense extradural collection","Rotational acceleration-deceleration forces; CT often normal or shows petechial haemorrhages at grey-white matter junctions","Penetrating injury; linear skull fracture with pneumocephalus","Blast injury; subdural effusion","Coup-contrecoup; large intracerebral haemorrhage"],
+ a:1, exp:"DAI results from rotational acceleration-deceleration (e.g. RTA, shaken baby). Axonal shearing at grey-white matter junctions. CT is often normal or shows only petechial haemorrhages. MRI (SWI sequences) detects DAI better. Associated with severe disability despite 'mild-looking' CT."},
+
+{id:"HI012",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"Which medication is used as an osmotic agent to reduce intracranial pressure in head injury?",
+ o:["Furosemide IV bolus","Mannitol 20% IV","Dexamethasone","Phenytoin","Normal saline bolus"],
+ a:1, exp:"Mannitol (20% solution) is an osmotic diuretic used to acutely reduce ICP by drawing water out of the brain. Hypertonic saline is an alternative. Dexamethasone is NOT used for traumatic brain oedema (effective for vasogenic oedema from tumours)."},
+
+{id:"HI013",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"A 30-year-old motorcyclist has a GCS of 7 post-RTA. He has a blown right pupil. CT shows a right-sided extradural haematoma. What is the immediate surgical intervention?",
+ o:["Twist drill craniotomy under local anaesthesia","Emergency decompressive craniectomy for ICP control only","Emergency craniotomy and evacuation of extradural haematoma","Burr hole on the LEFT side (contralateral)","Conservative management with mannitol and monitoring"],
+ a:2, exp:"Expanding extradural haematoma with neurological deterioration (GCS 7, blown pupil) requires emergency craniotomy and haematoma evacuation. 'Burr hole on the side of the blown pupil' is the life-saving emergency manoeuvre if theatre is not immediately available."},
+
+{id:"HI014",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"Post-traumatic amnesia (PTA) is a key outcome measure after TBI. Which statement is correct?",
+ o:["PTA = time of injury to regaining full orientation and continuous memory","PTA only describes the period before injury (retrograde amnesia)","PTA always resolves completely within 24 hours","PTA duration does not predict long-term outcome","PTA cannot be assessed clinically"],
+ a:0, exp:"PTA = the period from injury until the patient regains normal continuous memory and orientation. PTA duration correlates with severity: <1hr=mild, 1-24hr=moderate, 1-7 days=severe, >7 days=very severe TBI. Prolonged PTA predicts worse long-term cognitive outcome."},
+
+{id:"HI015",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"A 2-year-old child presents with unexplained retinal haemorrhages, subdural haematoma on CT, and no adequate history of trauma. Which diagnosis must be urgently considered?",
+ o:["Meningitis","Non-accidental injury (shaken baby syndrome)","Benign intracranial hypertension","Coagulopathy only","Arteriovenous malformation"],
+ a:1, exp:"The triad of subdural haematoma, retinal haemorrhages, and absent/inconsistent trauma history in a young child is highly suggestive of non-accidental injury (shaken baby syndrome). Mandatory safeguarding referral and multidisciplinary assessment required immediately."},
+
+{id:"HI016",topic:"Head Injury",difficulty:"Hard",source:"LN",
+ q:"Cerebral autoregulation normally maintains constant cerebral blood flow over a mean arterial pressure range of:",
+ o:["20-50 mmHg","50-150 mmHg","60-200 mmHg","100-200 mmHg","Only at normal MAP of 70-90 mmHg"],
+ a:1, exp:"Normal cerebral autoregulation maintains constant CBF over MAP 50-150 mmHg by adjusting cerebrovascular resistance. After severe TBI, autoregulation is impaired — CBF becomes pressure-passive, making the brain vulnerable to both hypotension and hypertension."},
+
+// ============================================================
+// HERNIA  (16 questions: 2E 7M 7H)
+// ============================================================
+{id:"HER001",topic:"Hernia",difficulty:"Easy",source:"LN",
+ q:"Which is the most common type of external abdominal hernia?",
+ o:["Femoral hernia","Umbilical hernia","Incisional hernia","Inguinal hernia","Epigastric hernia"],
+ a:3, exp:"Inguinal hernias account for 78% of all external hernias. The relative frequency: inguinal 78%, umbilical 3%, incisional 10%, femoral 7%, others 1%."},
+
+{id:"HER002",topic:"Hernia",difficulty:"Easy",source:"LN",
+ q:"A strangulated hernia describes which complication?",
+ o:["A hernia that cannot be reduced (irreducible)","A hernia whose contents cause bowel obstruction","A hernia in which the blood supply to the contents is cut off, causing ischaemia and gangrene","A hernia with a wide neck that is always reducible","A hernia that reduces but has persistent sac"],
+ a:2, exp:"Strangulation = ischaemia of hernia contents from compromised blood supply, leading to gangrene and perforation. This is a surgical emergency. Strangulation causes constant severe pain, fever, tachycardia, and systemic sepsis."},
+
+{id:"HER003",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"In which hernia type does only part of the bowel wall (not the full circumference) herniate through the defect?",
+ o:["Sliding hernia","Pantaloon hernia","Richter's hernia","Maydl's hernia","Littré's hernia"],
+ a:2, exp:"Richter's hernia = only the antimesenteric wall of the bowel herniates. Strangulation may occur WITHOUT bowel obstruction as the lumen is not fully occluded. This causes gangrene without classic obstruction symptoms — a diagnostic trap."},
+
+{id:"HER004",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"How does a direct inguinal hernia differ anatomically from an indirect inguinal hernia?",
+ o:["Direct hernia passes through the deep inguinal ring and descends into the scrotum","Indirect hernia protrudes through Hesselbach's triangle (medial to inferior epigastric vessels); direct hernia passes through the deep inguinal ring","Direct hernia protrudes medial to the inferior epigastric vessels through the posterior wall of the inguinal canal; indirect hernia passes through the deep inguinal ring lateral to these vessels","Direct hernias only occur in women","Indirect hernias always present as irreducible"],
+ a:2, exp:"Direct inguinal hernia: protrudes through Hesselbach's triangle (medial to inferior epigastric vessels, through the posterior wall). Indirect: passes through the deep inguinal ring (lateral to epigastric vessels), following the spermatic cord pathway and potentially descending to the scrotum."},
+
+{id:"HER005",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"Which hernia type is most at risk of strangulation and requires urgent surgical repair even when asymptomatic?",
+ o:["Large reducible direct inguinal hernia","Femoral hernia","Incisional hernia","Umbilical hernia in adults","Small indirect inguinal hernia in young adults"],
+ a:1, exp:"Femoral hernias have a narrow neck through the femoral ring, giving them the highest risk of strangulation among common hernias (~40% of femoral hernias present as emergencies). Urgent repair is recommended even when asymptomatic due to this risk."},
+
+{id:"HER006",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"McEvedy's approach for a femoral hernia repair is performed via which incision?",
+ o:["Groin crease incision below the inguinal ligament","Transverse suprainguinal incision through the lower abdomen","Midline laparotomy","Inguinal incision above the inguinal ligament","Lanz incision"],
+ a:1, exp:"McEvedy's approach uses a transverse or oblique suprainguinal incision through the lower abdomen, providing excellent access for strangulated femoral hernias as it allows bowel resection if needed. Lockwood's (infrainguinal) approach is simpler for elective cases."},
+
+{id:"HER007",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"The hernia sac in an indirect inguinal hernia is derived embryologically from which structure?",
+ o:["Peritoneal fold of the bladder","Processus vaginalis","External oblique aponeurosis","Transversalis fascia","Internal oblique muscle"],
+ a:1, exp:"The processus vaginalis is a peritoneal diverticulum that accompanies the testis during descent. Failure of obliteration leaves a patent processus vaginalis, predisposing to indirect inguinal hernia and hydrocele."},
+
+{id:"HER008",topic:"Hernia",difficulty:"Medium",source:"LN",
+ q:"Which Lichtenstein technique repair is used for inguinal hernia?",
+ o:["Primary suture repair of the posterior wall under tension","Tension-free mesh repair placed over the deep ring and posterior wall","Laparoscopic repair only","Herniotomy (sac ligation) alone","Bassini repair — suturing conjoint tendon to inguinal ligament"],
+ a:1, exp:"The Lichtenstein technique is a tension-free open mesh repair — the gold standard for inguinal hernia. A flat polypropylene mesh is placed over the posterior wall of the inguinal canal and around the spermatic cord. It has lower recurrence than suture repairs."},
+
+{id:"HER009",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"A pantaloon (dual/combined) hernia consists of which anatomical combination?",
+ o:["Bilateral indirect inguinal hernias","Simultaneous direct and indirect inguinal hernias straddling the inferior epigastric vessels","Femoral hernia combined with direct inguinal hernia","Scrotal hernia extending into the perineum","Inguinal hernia combined with obturator hernia"],
+ a:1, exp:"Pantaloon hernia = simultaneous direct and indirect hernial sacs, one on each side of the inferior epigastric vessels, giving a 'trouser legs' appearance. Both components must be recognised and repaired at surgery to prevent recurrence."},
+
+{id:"HER010",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"Maydl's hernia (W-hernia) is particularly dangerous. Why?",
+ o:["It strangulates without bowel obstruction (like Richter's)","A loop of bowel forms a W-shape in the sac; the middle loop within the abdomen may strangulate while the herniated loops appear viable","It always contains a Meckel's diverticulum","It only occurs in women","It is a sliding hernia that is impossible to reduce"],
+ a:1, exp:"Maydl's (W-hernia): two loops of bowel herniate forming a W. The central loop within the abdomen (not the hernial sac) strangulates. The surgeon may miss ischaemia if only the sac is inspected — the intra-abdominal loop must always be checked."},
+
+{id:"HER011",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"A sliding hernia contains which distinctive anatomical feature that makes it more dangerous to operate?",
+ o:["It contains a Meckel's diverticulum","Part of the wall of the sac is formed by an extraperitoneal viscus (e.g., bladder or sigmoid colon)","It can only be repaired laparoscopically","It always strangulates","It lacks a peritoneal sac"],
+ a:1, exp:"In a sliding hernia, part of the posterior wall of the hernia sac is formed by an extraperitoneal organ (sigmoid colon on left, caecum or bladder on right). The 'sac' cannot be excised without risk of injury to the viscus — recognised and repaired accordingly."},
+
+{id:"HER012",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"Why are umbilical hernias in neonates generally managed conservatively until 2 years of age?",
+ o:["Surgery carries unacceptable mortality in neonates","Most close spontaneously by age 2 as the fascial defect closes with abdominal wall growth","Anaesthetic risk is too high in neonates","Umbilical hernias in neonates are always reducible","Mesh repair is required and cannot be placed until skeletal maturity"],
+ a:1, exp:"Neonatal umbilical hernias frequently close spontaneously by age 2 years as the abdominal wall develops. Surgery is deferred unless: hernia is incarcerated, the defect is >2 cm, or it fails to close by age 4-5. In contrast, adult umbilical hernias do not close spontaneously."},
+
+{id:"HER013",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"Littré's hernia is defined as a hernia containing which specific structure?",
+ o:["Fallopian tube","Meckel's diverticulum","Appendix","Urinary bladder","Ovary"],
+ a:1, exp:"Littré's hernia contains a Meckel's diverticulum in the hernia sac. It is rare but important because strangulation of the Meckel's diverticulum can cause small bowel ischaemia and perforation. The Meckel's diverticulum is the remnant of the vitello-intestinal duct."},
+
+{id:"HER014",topic:"Hernia",difficulty:"Hard",source:"PP",
+ q:"In surface anatomy of the inguinal region, McBurney's point is located at which position?",
+ o:["One third of the way from the umbilicus to the ASIS","One third of the way from the ASIS to the umbilicus","Halfway between ASIS and pubic tubercle","At the mid-inguinal point","Two thirds of the way from the umbilicus to the ASIS"],
+ a:1, exp:"McBurney's point is one-third of the way from the right anterior superior iliac spine (ASIS) to the umbilicus — this corresponds to the base of the appendix. Tenderness here is a classic sign of acute appendicitis."},
+
+{id:"HER015",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"An obturator hernia classically presents with pain radiating to the medial thigh (Howship-Romberg sign). Why is this sign positive?",
+ o:["The femoral nerve is compressed causing lateral thigh pain","The obturator nerve is compressed by hernia contents as it passes through the obturator foramen, causing medial thigh pain and paraesthesia","The sciatic nerve is entrapped causing posterior thigh radiation","It results from intra-abdominal adhesions","It is caused by psoas spasm"],
+ a:1, exp:"Howship-Romberg sign = pain/paraesthesia along the medial thigh on hip extension, adduction, or internal rotation. It results from compression of the obturator nerve as hernia contents pass through the obturator foramen. Obturator hernia is commonest in elderly thin women."},
+
+{id:"HER016",topic:"Hernia",difficulty:"Hard",source:"LN",
+ q:"Spigelian hernia occurs at which anatomical location?",
+ o:["Through the femoral ring","At the level of the arcuate line, lateral to the rectus sheath, through the semilunar line (Spigelian fascia)","Through the linea alba in the epigastrium","Through a previous scar","At the umbilical ring"],
+ a:1, exp:"Spigelian hernia protrudes through the semilunar line (Spigelian fascia), typically at the arcuate line where the posterior rectus sheath is deficient. It is interparietal (between muscle layers) and may not be visible externally, making diagnosis challenging — often requires CT."},
+
+// ============================================================
+// PERIANAL CONDITIONS  (14 questions: 2E 6M 6H)
+// ============================================================
+{id:"PER001",topic:"Perianal Conditions",difficulty:"Easy",source:"LN",
+ q:"Which is the most common cause of fresh rectal bleeding in young adults?",
+ o:["Colorectal cancer","Anal fissure","Haemorrhoids","Diverticular disease","Angiodysplasia"],
+ a:2, exp:"Haemorrhoids are the most common cause of fresh rectal bleeding in young adults, typically presenting as painless bright red blood on toilet paper or dripping into the pan. However, colorectal cancer must always be excluded in adults >40."},
+
+{id:"PER002",topic:"Perianal Conditions",difficulty:"Easy",source:"LN",
+ q:"A patient has painful fresh rectal bleeding, worse during defecation, with visible linear tear at the posterior midline of the anus. What is the diagnosis?",
+ o:["Haemorrhoids","Anal fissure","Pilonidal sinus","Perianal abscess","Anal fistula"],
+ a:1, exp:"Anal fissure is a painful linear tear in the anoderm, typically at the posterior midline (6 o'clock position). Pain is severe during and after defecation. Fresh bleeding is on the toilet paper or stool surface."},
+
+{id:"PER003",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"Park's classification of anal fistulae is based on the relationship of the fistula tract to which structure?",
+ o:["The internal sphincter","The puborectalis muscle","The external anal sphincter","The anorectal ring","The Dentate line"],
+ a:2, exp:"Park's classification: inter-sphincteric, trans-sphincteric, supra-sphincteric, and extra-sphincteric — all defined by the relationship to the external anal sphincter. Treatment depends on how much sphincter is involved (determines continence risk)."},
+
+{id:"PER004",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"Goodsall's rule states that fistulae with external openings posterior to a transverse line through the anus track in which direction?",
+ o:["Directly radially to the posterior midline internal opening","In a curved arc to the posterior midline internal opening","Directly radially to the anterior midline","Through the sphincter complex to the rectum","To the ischiorectal fossa exclusively"],
+ a:1, exp:"Goodsall's rule: posterior external openings → curved track to a posterior midline internal opening. Anterior external openings → straight radial track to an anterior internal opening. This guides surgical planning for fistulotomy."},
+
+{id:"PER005",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"Which condition is characterised by a sinus or abscess in the natal cleft, typically containing hair follicles, and predominantly affects young men?",
+ o:["Perianal Crohn's disease","Pilonidal sinus","Anal fistula","Hidradenitis suppurativa","Bartholin's cyst"],
+ a:1, exp:"Pilonidal sinus occurs in the natal cleft. Loose hair pierces the skin, creating a chronic sinus or abscess. It is commonest in young, hairy, obese males. Acute abscess → incision and drainage. Chronic sinus → wide excision (Karydakis/Bascom flap)."},
+
+{id:"PER006",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"Which band ligation technique is used to treat symptomatic 2nd degree haemorrhoids?",
+ o:["Injection sclerotherapy with phenol in oil","Rubber band ligation applied above the dentate line","Haemorrhoidectomy (Milligan-Morgan)","HALO procedure (haemorrhoid artery ligation)","Cryotherapy"],
+ a:1, exp:"Rubber band ligation (Barron's banding) is the most effective outpatient treatment for 2nd and 3rd degree haemorrhoids. Bands are applied above the dentate line (insensate mucosa) to avoid pain. The haemorrhoid sloughs off within 5-7 days."},
+
+{id:"PER007",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"A perianal abscess is most commonly caused by which pathological process?",
+ o:["Crohn's disease in all cases","Infection of an anal gland/crypt at the dentate line (cryptoglandular infection)","Sexually transmitted infection","Haematogenous spread from distant source","Post-operative wound infection"],
+ a:1, exp:"Most perianal abscesses arise from infected anal glands (cryptoglandular hypothesis). The anal glands normally drain into the crypts at the dentate line; obstruction → abscess formation. If left untreated, it may develop into an anal fistula."},
+
+{id:"PER008",topic:"Perianal Conditions",difficulty:"Medium",source:"LN",
+ q:"A patient with an acute perianal abscess is best treated by which initial intervention?",
+ o:["Oral antibiotics and warm baths only","Immediate incision and drainage under anaesthesia","Elective surgical review in 6 weeks","Metronidazole and co-amoxiclav for 2 weeks","MRI pelvis before any intervention"],
+ a:1, exp:"Acute perianal abscess = surgical emergency. Incision and drainage is the definitive treatment — antibiotics alone are insufficient and may mask progression. Pus must be drained. Approximately 30-50% will subsequently develop an anal fistula."},
+
+{id:"PER009",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"A seton suture is placed through an anal fistula. What is its purpose?",
+ o:["To create a fistulotomy track in a single procedure","To allow drainage while slowly cutting through the sphincter (cutting seton) or marking the tract for staged repair (loose seton)","To inject sclerosant into the fistula tract","To identify the internal opening only","To completely obliterate the fistula tract immediately"],
+ a:1, exp:"A seton (thread) through the fistula serves two purposes: (1) Loose seton — drainage and allows fibrous tract formation for staged repair; (2) Cutting seton — gradually tightened to slowly cut through sphincter, allowing fibrosis and preventing incontinence. Used when significant sphincter is involved."},
+
+{id:"PER010",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"Proctalgia fugax is characterised by which symptom pattern?",
+ o:["Constant perianal pain with purulent discharge","Sudden brief episodes of severe anorectal pain, often nocturnal, lasting seconds to minutes, with complete resolution","Chronic dull aching pain relieved by sitting","Pain on defecation only with fresh bleeding","Perianal itching worse at night"],
+ a:1, exp:"Proctalgia fugax: sudden, severe, fleeting anorectal pain (seconds to minutes), often nocturnal, with complete resolution between episodes. Cause unknown (possibly internal sphincter spasm). Reassurance and relaxation techniques are the main management."},
+
+{id:"PER011",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"Which condition must be excluded in a patient with a chronic posterior midline fissure that fails to heal with conservative treatment, especially if secondary features (raised edges, skin tag) are present?",
+ o:["Haemorrhoids","Squamous cell carcinoma of the anal canal","Anal fistula","Crohn's disease and anal tuberculosis","Pilonidal sinus"],
+ a:3, exp:"Chronic, atypical, or treatment-resistant anal fissures should prompt biopsy to exclude Crohn's disease, tuberculosis, syphilis, HIV, and squamous cell carcinoma. Multiple or off-midline fissures are particularly suspicious for Crohn's disease."},
+
+{id:"PER012",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"Lateral internal sphincterotomy (LIS) for chronic anal fissure carries which specific complication risk?",
+ o:["Rectovaginal fistula","Faecal incontinence (especially to flatus and liquid stool)","Rectal perforation","Haemorrhage requiring transfusion","Anal stenosis"],
+ a:1, exp:"LIS divides the internal anal sphincter, reducing sphincter pressure and allowing fissure healing. Risk of faecal incontinence (minor soiling 1-5%, frank incontinence <1%) — the balance between healing and continence must be discussed with the patient."},
+
+{id:"PER013",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"Squamous cell carcinoma of the anal canal is associated with which oncogenic virus?",
+ o:["Hepatitis B virus","Epstein-Barr virus","Human papillomavirus (HPV), particularly HPV 16 and 18","Cytomegalovirus","Herpes simplex virus type 2"],
+ a:2, exp:"Anal SCC is strongly associated with HPV infection, particularly high-risk strains HPV 16 and 18. Risk factors include receptive anal intercourse, HIV, immunosuppression, and cervical HPV. Treatment is chemoradiotherapy (Nigro protocol) — surgery reserved for failures."},
+
+{id:"PER014",topic:"Perianal Conditions",difficulty:"Hard",source:"LN",
+ q:"A patient with Crohn's disease develops multiple perianal fistulae. Which medical therapy has been shown to reduce fistula drainage in Crohn's disease?",
+ o:["Methotrexate","Oral prednisolone","Anti-TNF therapy (infliximab/adalimumab)","Mesalazine","Sulfasalazine"],
+ a:2, exp:"Anti-TNF therapy (infliximab) is proven to achieve fistula closure in Crohn's perianal disease. Azathioprine as maintenance therapy is also used. Surgical options include seton drainage, advancement flaps, or LIFT procedure. Proctectomy is reserved for refractory disease."},
+
+// ============================================================
+// PRE-OPERATIVE ASSESSMENT  (14 questions: 2E 6M 6H)
+// ============================================================
+{id:"PRE001",topic:"Pre-operative Assessment",difficulty:"Easy",source:"LN",
+ q:"ASA physical status classification I indicates which patient category?",
+ o:["Severe systemic disease, constant threat to life","Mild systemic disease with no functional limitation","Normal healthy patient with no systemic disease","End-stage disease not expected to survive without surgery","Moribund patient not expected to survive without the operation"],
+ a:2, exp:"ASA I = Normal healthy patient. ASA II = Mild systemic disease. ASA III = Severe systemic disease. ASA IV = Severe disease, constant threat to life. ASA V = Moribund. ASA VI = Brain-dead organ donor."},
+
+{id:"PRE002",topic:"Pre-operative Assessment",difficulty:"Easy",source:"LN",
+ q:"Which pre-operative investigation is mandatory in all women of child-bearing age undergoing elective surgery?",
+ o:["Chest X-ray","ECG","Urine β-hCG (pregnancy test)","Full blood count","Thyroid function tests"],
+ a:2, exp:"Pregnancy test (urine β-hCG) is mandatory in all women of child-bearing age before anaesthesia, as anaesthetic agents and surgery carry teratogenic risk and may cause miscarriage. This is a medico-legal requirement in most institutions."},
+
+{id:"PRE003",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"A patient on long-term prednisolone (≥5 mg/day for >3 months) requires emergency laparotomy. Which perioperative steroid management is required?",
+ o:["Stop prednisolone 1 week before surgery","Give usual oral prednisolone dose only on the day of surgery","Administer supplemental IV hydrocortisone (stress dose steroids) to prevent Addisonian crisis","No additional steroids needed as the pituitary-adrenal axis recovers rapidly","Start hydrocortisone only if blood pressure falls post-operatively"],
+ a:2, exp:"Patients on long-term corticosteroids have adrenal suppression and cannot mount a normal cortisol stress response to surgery. Stress-dose steroids (IV hydrocortisone 50-100 mg TDS perioperatively) prevent Addisonian crisis. The dose is tapered back to baseline when able to eat."},
+
+{id:"PRE004",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"Wells score and D-dimer are used in pre-operative assessment for which condition?",
+ o:["Cardiac risk assessment","Deep vein thrombosis (DVT) and pulmonary embolism risk stratification","Renal function assessment","Hepatic reserve calculation","Coagulation disorder screening"],
+ a:1, exp:"Wells score estimates pre-test probability of DVT or PE. Combined with D-dimer (sensitive but non-specific), it guides whether imaging (Doppler USS for DVT, CTPA for PE) is required. Pre-operative identification allows anticoagulation before elective surgery."},
+
+{id:"PRE005",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"Which anticoagulant is most commonly reversed with protamine sulphate before emergency surgery?",
+ o:["Warfarin","Apixaban (direct oral anticoagulant)","Unfractionated heparin","Aspirin","Clopidogrel"],
+ a:2, exp:"Unfractionated heparin is reversed by protamine sulphate (1 mg/100 units of heparin). Low-molecular-weight heparin is only partially reversed. Warfarin reversal uses vitamin K ± FFP or prothrombin complex concentrate. DOACs have specific reversal agents (idarucizumab for dabigatran; andexanet alfa for Xa inhibitors)."},
+
+{id:"PRE006",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"The POSSUM scoring system is used in surgical practice for which purpose?",
+ o:["To predict post-operative wound infection risk only","To calculate fluid replacement requirements","To estimate predicted morbidity and mortality for surgical procedures (physiological + operative score)","To grade hepatic reserve","To assess anaesthetic risk"],
+ a:2, exp:"POSSUM (Physiological and Operative Severity Score for the enUmeration of Mortality and morbidity) uses 12 physiological variables and 6 operative variables to predict morbidity and mortality. It is used for audit, consent, and benchmarking surgical outcomes."},
+
+{id:"PRE007",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"Which investigation provides the most reliable assessment of cardiac functional reserve before high-risk surgery?",
+ o:["Resting 12-lead ECG","Exercise stress test or cardiopulmonary exercise testing (CPEX)","Echocardiogram at rest","Serum troponin","Chest X-ray"],
+ a:1, exp:"CPEX (cardiopulmonary exercise testing) measures anaerobic threshold and VO2 max, providing objective assessment of cardiorespiratory reserve. An anaerobic threshold <11 mL/kg/min or VO2 max <15 mL/kg/min indicates high risk for major surgery."},
+
+{id:"PRE008",topic:"Pre-operative Assessment",difficulty:"Medium",source:"LN",
+ q:"A patient with liver cirrhosis (Child-Pugh C) requires cholecystectomy for gangrenous cholecystitis. Child-Pugh C classification indicates which operative mortality risk?",
+ o:["<5%","10-15%","25-30%","50%",">80% operative mortality"],
+ a:3, exp:"Child-Pugh classification: A (5-6 points, <5% mortality), B (7-9 points, 10-15% mortality), C (10-15 points, >50% mortality). Class C cirrhosis carries extremely high surgical risk and surgery should be reserved for life-threatening indications only."},
+
+{id:"PRE009",topic:"Pre-operative Assessment",difficulty:"Hard",source:"LN",
+ q:"Which pre-operative investigation is indicated before thyroid surgery to exclude vocal cord palsy from possible recurrent laryngeal nerve involvement?",
+ o:["CT neck","Laryngoscopy (direct or fibreoptic) to assess vocal cord mobility","Thyroid function tests","Serum calcium","Sialogram"],
+ a:1, exp:"Pre-operative laryngoscopy is essential before thyroid/parathyroid surgery to document pre-existing vocal cord palsy (from tumour invasion of RLN) and to provide a medicolegal baseline. Post-operative cord paresis can then be correctly attributed."},
+
+{id:"PRE010",topic:"Pre-operative Assessment",difficulty:"Hard",source:"LN",
+ q:"A patient taking clopidogrel (antiplatelet) for a drug-eluting coronary stent placed 8 months ago requires urgent hip replacement. What is the appropriate management?",
+ o:["Stop clopidogrel immediately and proceed to surgery","Continue clopidogrel through surgery — acceptable bleeding risk","Discuss with cardiologist; if safe, stop clopidogrel 5-7 days pre-op; bridge with IV heparin if within 12 months of stent","Switch to warfarin","Postpone surgery indefinitely"],
+ a:2, exp:"Drug-eluting stents require dual antiplatelet therapy (DAPT) for 12 months minimum. Stopping antiplatelet therapy risks in-stent thrombosis (potentially fatal). Cardiology input is essential. If within 12 months, surgery postponed if possible; if urgent, heparin bridging and accept higher bleeding risk."},
+
+{id:"PRE011",topic:"Pre-operative Assessment",difficulty:"Hard",source:"LN",
+ q:"Venous thromboembolism (VTE) prophylaxis guidelines classify patients into risk groups. Which patient is classified as HIGH risk for VTE?",
+ o:["A 25-year-old having a 20-minute arthroscopy","A 35-year-old having a laparoscopic cholecystectomy with no risk factors","A 68-year-old having a total hip replacement with a history of previous DVT","A 45-year-old having a minor inguinal hernia repair","A 30-year-old having an appendicectomy"],
+ a:2, exp:"High VTE risk: major orthopaedic surgery (hip/knee replacement), cancer surgery, previous VTE, thrombophilia, prolonged immobility, age >60, obesity. Low-risk patients (young, short procedures) need TED stockings only; high-risk require LMWH + mechanical prophylaxis."},
+
+{id:"PRE012",topic:"Pre-operative Assessment",difficulty:"Hard",source:"LN",
+ q:"A patient has a serum sodium of 122 mmol/L pre-operatively. What is the concern with proceeding to general anaesthesia, and how should it be corrected?",
+ o:["No concern; proceed with surgery","Risk of cerebral oedema and seizures; correct slowly (max 8 mmol/L/24h) with fluid restriction or hypertonic saline if severe, before elective surgery","Rapidly correct with 3% saline at 10 mmol/L/hour","Give dexamethasone to reduce cerebral oedema","Correct with diuretics and normal saline"],
+ a:1, exp:"Hyponatraemia <130 mmol/L carries risk of cerebral oedema, seizures, and cardiovascular instability under anaesthesia. Over-rapid correction risks osmotic demyelination syndrome (central pontine myelinolysis). Correct ≤8-12 mmol/L per 24 hours. Elective surgery should be postponed until corrected."},
+
+{id:"PRE013",topic:"Pre-operative Assessment",difficulty:"Hard",source:"LN",
+ q:"The STOP-BANG questionnaire is used pre-operatively to screen for which condition?",
+ o:["Malignant hyperthermia susceptibility","Obstructive sleep apnoea (OSA)","Post-operative nausea and vomiting risk","Difficult airway","Chronic pain syndrome"],
+ a:1, exp:"STOP-BANG screens for obstructive sleep apnoea: Snoring, Tiredness, Observed apnoea, Pressure (hypertension), BMI>35, Age>50, Neck circumference>40cm, Gender (male). Score ≥3 = high risk. OSA patients require careful airway management, CPAP availability, and HDU post-operatively."},
+
+{id:"PRE014",topic:"Pre-operative Assessment",difficulty:"Hard",source:"PP",
+ q:"A patient on long-term prednisolone 30 mg daily for Crohn's disease requires emergency subtotal colectomy. What is the best management to prevent an Addisonian crisis?",
+ o:["Additional steroid cover is not required as the exogenous dose is sufficient","Give the usual oral prednisolone dose only","Give supplemental IV hydrocortisone cover in addition to the normal dose, then taper post-operatively","Stop all steroids 24 hours before surgery","Give oral prednisolone only if the patient becomes hypotensive"],
+ a:2, exp:"Patients on long-term corticosteroids have hypothalamic-pituitary-adrenal axis suppression and require supplemental IV hydrocortisone (stress dosing) for surgery. This is in addition to continuing background therapy. Without it, life-threatening Addisonian crisis may occur."},
+
+// ============================================================
+// UROLOGICAL DISEASES  (16 questions: 2E 7M 7H)
+// ============================================================
+{id:"URO001",topic:"Urological Diseases",difficulty:"Easy",source:"LN",
+ q:"Macroscopic haematuria (visible blood in urine) is a red-flag symptom that mandates urgent investigation for which condition?",
+ o:["UTI in a young woman","Urothelial malignancy (bladder cancer) until proven otherwise","Benign prostatic hyperplasia","Kidney stones","Renal cyst"],
+ a:1, exp:"Any episode of painless macroscopic haematuria in an adult must be investigated urgently for bladder cancer (most common cause), renal cell carcinoma, or upper tract TCC. Cystoscopy and upper tract imaging are required even if the haematuria resolves."},
+
+{id:"URO002",topic:"Urological Diseases",difficulty:"Easy",source:"LN",
+ q:"Testicular torsion presents with which characteristic symptom in a young male?",
+ o:["Gradual onset scrotal swelling over weeks","Painless scrotal mass that transilluminates","Sudden onset severe testicular pain with nausea and vomiting","Burning micturition with urethral discharge","Bilateral scrotal swelling with varicosity"],
+ a:2, exp:"Testicular torsion: sudden severe unilateral testicular pain in an adolescent/young male, often with nausea and vomiting. The testis may appear high-riding with a horizontal lie. This is a surgical emergency — salvage rate >90% if detorsion within 6 hours but drops to <10% after 24 hours."},
+
+{id:"URO003",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"Which investigation is the gold standard for diagnosing bladder cancer?",
+ o:["CT urogram","Urine cytology","Cystoscopy with biopsy","Transrectal ultrasound","MRI pelvis"],
+ a:2, exp:"Cystoscopy with biopsy is the gold standard for bladder cancer diagnosis and staging. Urine cytology is useful for high-grade tumours but insensitive for low-grade. CT urogram evaluates upper tracts. Flexible cystoscopy is first-line outpatient surveillance."},
+
+{id:"URO004",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"A 65-year-old man has urinary hesitancy, poor stream, terminal dribbling, and nocturia. PSA is 3.2 ng/mL. DRE shows a smooth, symmetrically enlarged prostate. What is the most likely diagnosis?",
+ o:["Prostate cancer","Benign prostatic hyperplasia (BPH)","Bladder neck obstruction","Urethral stricture","Detrusor overactivity"],
+ a:1, exp:"Lower urinary tract symptoms (LUTS) — hesitancy, poor stream, terminal dribbling, nocturia — with a symmetrically enlarged smooth prostate and modestly elevated PSA in an elderly man is BPH. PSA can be mildly elevated in BPH; >10 ng/mL raises cancer concern."},
+
+{id:"URO005",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"Renal colic pain characteristically radiates from flank to where?",
+ o:["From the flank to the ipsilateral groin, labia/scrotum, and inner thigh","From the flank to the right shoulder","From the flank to the epigastrium","From the flank to the umbilicus only","From the flank bilaterally to the back"],
+ a:0, exp:"Ureteric colic pain follows the course of the ureter: loin (at the renal pelvis) → iliac fossa → groin → ipsilateral scrotum or labium majus. This radiation pattern reflects the T10-L1 dermatomal supply shared by the ureter and these areas."},
+
+{id:"URO006",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"Which imaging is first-line for suspected renal/ureteric calculi?",
+ o:["Plain abdominal X-ray (KUB) alone","Intravenous urogram (IVU)","Non-contrast CT KUB (CT urogram without contrast)","MRI abdomen","Renal ultrasound with Doppler"],
+ a:2, exp:"Non-contrast CT KUB is first-line for suspected urinary calculi — sensitivity >95%, specificity >98%. It identifies all stone types (including radiolucent uric acid stones missed on plain X-ray) and detects complications. Ultrasound is used in pregnancy to avoid radiation."},
+
+{id:"URO007",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"A patient with a hydrocele undergoes transillumination test. Which finding is expected?",
+ o:["The lump does not transilluminate","The lump transilluminates brightly (fluid-filled)","The lump transilluminates only when compressed","Transillumination is positive only in malignancy","The lump transilluminates green"],
+ a:1, exp:"Hydrocele is a collection of serous fluid between the layers of the tunica vaginalis. It transilluminates brightly because the fluid is clear. A solid testicular tumour does NOT transilluminate. Any scrotal swelling that does not transilluminate needs urgent USS to exclude malignancy."},
+
+{id:"URO008",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"Which serum tumour marker is elevated in non-seminomatous germ cell tumours (NSGCT) of the testis?",
+ o:["PSA","AFP (alpha-fetoprotein) and β-hCG","CEA","CA-125","CA 19-9"],
+ a:1, exp:"NSGCTs produce AFP, β-hCG, or both. Pure seminoma does NOT produce AFP (if AFP elevated → NSGCT component present). β-hCG may be elevated in seminoma. These markers guide diagnosis, staging, monitoring of treatment response, and detection of relapse."},
+
+{id:"URO009",topic:"Urological Diseases",difficulty:"Medium",source:"LN",
+ q:"Varicocele most commonly occurs on which side and why?",
+ o:["Right side — right gonadal vein drains at an acute angle into the IVC","Left side — left testicular vein drains at a right angle into the left renal vein, causing higher venous pressure","Bilateral equally","Right side in 90%","Bilateral in all cases"],
+ a:1, exp:"Varicocele (dilated pampiniform plexus veins) is commoner on the LEFT (90%) because the left testicular vein drains at a right angle into the left renal vein, creating higher venous resistance. Right varicocele raises concern for IVC obstruction/retroperitoneal mass."},
+
+{id:"URO010",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"The Gleason scoring system for prostate cancer grades which histological feature?",
+ o:["Tumour volume only","Glandular architecture (pattern of gland formation), scored 1-5 for the two most prevalent patterns, summed to give total Gleason score 2-10","Cell nucleus size and mitotic rate","Perineural invasion only","PSA level and DRE findings"],
+ a:1, exp:"Gleason score grades glandular architecture: pattern 1 (well-formed glands) to 5 (no gland formation). Primary + secondary patterns are summed (e.g., 3+4=7). Grade Group 1 (Gleason 6) = low risk; Grade Group 5 (Gleason 9-10) = highest risk."},
+
+{id:"URO011",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"A 72-year-old man has urinary retention with a palpable bladder. After urethral catheterisation draining 800 mL, his creatinine is 420 µmol/L. This is termed post-renal (obstructive) uropathy. Which phenomenon may occur after catheterisation?",
+ o:["Immediate renal failure requiring dialysis","Post-obstructive diuresis — high-volume urine output as the kidneys excrete retained solutes; fluid/electrolyte replacement may be needed","Acute tubular necrosis requiring dialysis","Bladder rupture","Retrograde ejaculation"],
+ a:1, exp:"Post-obstructive diuresis occurs after relief of prolonged urinary obstruction. The kidneys excrete accumulated urea and solutes, causing brisk urine output (>200 mL/h). IV fluid replacement may be required to prevent dehydration and electrolyte imbalance. Monitor urine output and electrolytes closely."},
+
+{id:"URO012",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"Which staging system is used for renal cell carcinoma, and what does T3a denote?",
+ o:["TNM staging; T3a = tumour >7 cm confined to kidney","TNM staging; T3a = tumour invades the adrenal gland or perinephric fat but not beyond Gerota's fascia","Robson staging; Stage 3 = lymph node involvement","TNM; T3a = distant metastasis","Fuhrman staging; Grade 3 = high nuclear grade"],
+ a:1, exp:"RCC uses TNM staging. T1=≤7cm confined to kidney; T2=>7cm confined; T3a=invades adrenal or perinephric fat; T3b=extends into renal vein/IVC below diaphragm; T3c=IVC above diaphragm; T4=beyond Gerota's fascia. T3a tumours may still be amenable to curative nephron-sparing surgery."},
+
+{id:"URO013",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"Fournier's gangrene is a life-threatening necrotising fasciitis of the perineum. Which patient group is most at risk?",
+ o:["Young athletic males","Immunocompetent women","Diabetic, immunocompromised, or elderly males with perianal or urological sepsis","Post-operative laparoscopy patients","Patients with renal calculi"],
+ a:2, exp:"Fournier's gangrene is a polymicrobial necrotising fasciitis of the genitoperineal area. Risk factors: diabetes, immunosuppression, obesity, alcohol abuse, perianal sepsis. It is a surgical emergency requiring aggressive debridement, broad-spectrum antibiotics, and often ITU care. Mortality 20-40%."},
+
+{id:"URO014",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"In testicular torsion, what is the correct surgical management and why is the contralateral testis also fixed?",
+ o:["Unilateral orchidopexy only; contralateral testis is normal","Emergency surgical exploration, detorsion and bilateral orchidopexy — because the anatomical predisposition (bell clapper deformity) is bilateral","Doppler ultrasound first, then surgical detorsion if confirmed","Medical management with analgesia and ice only","Orchiectomy of torted testis; no contralateral fixation needed"],
+ a:1, exp:"Emergency surgical exploration: detorsion of affected testis (assess viability), then orchidopexy of both testes. Bell clapper deformity (high attachment of tunica vaginalis allowing testis to rotate freely) is bilateral in 80% — contralateral fixation prevents future torsion on that side."},
+
+{id:"URO015",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"Which metabolic abnormality is most associated with uric acid kidney stones?",
+ o:["Hypercalcaemia","Hyperoxaluria","Hyperuricosuria with persistently acidic urine (pH <5.5)","Cystinuria","Renal tubular acidosis"],
+ a:2, exp:"Uric acid stones form in persistently acidic urine (pH <5.5) in patients with hyperuricosuria (gout, high purine diet, myeloproliferative disorders). Treatment: urinary alkalinisation with potassium citrate to pH 6-6.5 to dissolve existing stones and prevent new ones."},
+
+{id:"URO016",topic:"Urological Diseases",difficulty:"Hard",source:"LN",
+ q:"A 3-year-old boy has an abdominal mass, haematuria, and hypertension. CT shows a large intrarenal mass with heterogeneous enhancement. What is the most likely diagnosis?",
+ o:["Neuroblastoma","Renal cell carcinoma","Wilms' tumour (nephroblastoma)","Lymphoma","Polycystic kidney disease"],
+ a:2, exp:"Wilms' tumour (nephroblastoma) is the commonest renal malignancy in children (peak age 3-4). Presents as large abdominal mass, haematuria, and hypertension. CT shows intrarenal origin. Treatment: nephrectomy + chemotherapy ± radiotherapy. 90% 5-year survival in early stage."},
+
+// ============================================================
+// ORTHOPAEDICS & TRAUMA  (18 questions: 3E 8M 7H)
+// ============================================================
+{id:"ORT001",topic:"Orthopaedics & Trauma",difficulty:"Easy",source:"PP",
+ q:"A Colles' fracture results from which mechanism and involves which structure?",
+ o:["Direct blow to ulna; fracture of ulnar styloid","Fall on outstretched hand; fracture of distal radius with dorsal displacement and radial shortening","Twisting injury; fracture of scaphoid","Fall on elbow; olecranon fracture","Fall on outstretched hand; supracondylar fracture"],
+ a:1, exp:"Colles' fracture = distal radius fracture from fall on outstretched hand (FOOSH), with dorsal displacement and angulation (dinner-fork deformity), radial shortening, and radial deviation. Commonest in post-menopausal women with osteoporosis."},
+
+{id:"ORT002",topic:"Orthopaedics & Trauma",difficulty:"Easy",source:"PP",
+ q:"Which bone is most commonly fractured in a fall on an outstretched hand in a young adult, presenting with anatomical snuffbox tenderness?",
+ o:["Distal radius","Ulna","Scaphoid","Trapezium","Lunate"],
+ a:2, exp:"Scaphoid fracture: anatomical snuffbox tenderness after FOOSH in young adults. X-ray may be normal initially. If clinically suspected, treat as scaphoid fracture (thumb spica cast) and repeat X-ray at 10-14 days or proceed to MRI. Risk of avascular necrosis of proximal fragment."},
+
+{id:"ORT003",topic:"Orthopaedics & Trauma",difficulty:"Easy",source:"PP",
+ q:"Ottawa ankle rules help determine whether X-ray is required after ankle injury. An X-ray is indicated if there is bony tenderness at which specific locations?",
+ o:["Any ankle tenderness","Posterior edge or tip of lateral or medial malleolus, OR inability to weight-bear 4 steps","Anterior ankle tenderness only","Swelling alone without tenderness","Tenderness anywhere along the fibula"],
+ a:1, exp:"Ottawa ankle rules indicate X-ray if: bony tenderness at posterior edge/tip of lateral or medial malleolus, OR inability to weight-bear 4 steps immediately and in ED. These rules have ~99% sensitivity for fractures, reducing unnecessary X-rays by 30-40%."},
+
+{id:"ORT004",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"Which nerve is most commonly injured in a posterior dislocation of the hip?",
+ o:["Femoral nerve","Lateral femoral cutaneous nerve","Sciatic nerve","Obturator nerve","Common peroneal nerve"],
+ a:2, exp:"Posterior hip dislocation (most common type, from dashboard injury in RTA) risks sciatic nerve injury — particularly the common peroneal division. The nerve lies posterior to the hip joint. Presents with foot drop and sensory loss over dorsum of foot."},
+
+{id:"ORT005",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"A 75-year-old woman falls and has shortening, external rotation, and inability to straight-leg-raise of the right leg. X-ray shows a displaced intracapsular femoral neck fracture. What is the preferred surgical treatment?",
+ o:["Dynamic hip screw (DHS)","Total hip replacement or hemiarthroplasty","Intramedullary nail","Conservative management with traction","Cast immobilisation"],
+ a:1, exp:"Displaced intracapsular femoral neck fractures in the elderly are best treated with arthroplasty (hemiarthroplasty or total hip replacement) because internal fixation has a high failure rate due to avascular necrosis risk (disrupted blood supply through capsular vessels). DHS is used for extracapsular fractures."},
+
+{id:"ORT006",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"Compartment syndrome is most reliably diagnosed by which finding?",
+ o:["Absent peripheral pulse","Compartment pressure >30 mmHg (or within 30 mmHg of diastolic BP) with pain out of proportion, pain on passive stretch","Skin blistering and bruising","Swelling alone","Pallor and coolness of the limb"],
+ a:1, exp:"Compartment syndrome: raised intracompartmental pressure causes tissue ischaemia. Classic signs (5Ps) include Pain out of proportion and Pain on passive stretch (most sensitive early signs). Compartment pressure >30 mmHg or within 30 mmHg of diastolic BP is the threshold for emergency fasciotomy."},
+
+{id:"ORT007",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"Which radiological classification is used for tibial plateau fractures?",
+ o:["Garden classification","Neer classification","Schatzker classification","Gustilo-Anderson classification","Weber classification"],
+ a:2, exp:"Schatzker classification (I-VI) grades tibial plateau fractures by pattern and severity: I=lateral split, II=split-depression, III=pure depression, IV=medial, V=bicondylar, VI=fracture-dislocation. Higher grades require surgical fixation. Garden = femoral neck; Weber = ankle; Gustilo = open fractures."},
+
+{id:"ORT008",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"Which clinical test assesses anterior cruciate ligament (ACL) integrity?",
+ o:["McMurray test","Lachman test and anterior drawer test","Valgus stress test","Posterior drawer test","Clarke's test"],
+ a:1, exp:"Lachman test (most sensitive) and anterior drawer test assess ACL integrity. Positive = excessive anterior tibial translation on femur. McMurray = meniscal pathology; valgus stress = medial collateral ligament; posterior drawer = posterior cruciate; Clarke's = patellofemoral."},
+
+{id:"ORT009",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"Gustilo-Anderson classification grades open fractures. Which grade indicates extensive soft tissue damage with vascular injury requiring repair?",
+ o:["Grade I — clean wound <1 cm","Grade II — wound 1-10 cm with moderate contamination","Grade IIIA — adequate soft tissue coverage","Grade IIIB — periosteal stripping requiring soft tissue coverage","Grade IIIC — arterial injury requiring repair"],
+ a:4, exp:"Gustilo-Anderson: I=<1cm clean; II=1-10cm moderate; IIIA=>10cm but adequate coverage; IIIB=periosteal stripping needs flap; IIIC=arterial injury needing repair. Grade IIIC has highest limb-loss risk. Early skeletal stabilisation + vascular repair within 6 hours optimises outcome."},
+
+{id:"ORT010",topic:"Orthopaedics & Trauma",difficulty:"Medium",source:"PP",
+ q:"A 55-year-old patient has early osteoarthritis of the knee. First-line management includes which approach?",
+ o:["Immediate total knee replacement","Arthroscopic lavage","Weight loss, physiotherapy, analgesia (paracetamol/NSAIDs), and walking aids","Long-term opioid therapy","Intra-articular steroid every 4 weeks"],
+ a:2, exp:"Conservative management is first-line for osteoarthritis: weight reduction, quadriceps strengthening physiotherapy, analgesia (paracetamol first, then NSAIDs/topical NSAIDs), and walking aids. Total knee replacement is reserved for severe disease unresponsive to conservative measures."},
+
+{id:"ORT011",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"Which nerve is at risk in a supracondylar fracture of the humerus in a child, and what is the assessment?",
+ o:["Radial nerve — assess wrist extension","Anterior interosseous nerve (branch of median) — assess FPL and FDP to index finger (OK sign)","Ulnar nerve — assess little finger abduction","Musculocutaneous nerve — assess elbow flexion","Axillary nerve — assess shoulder abduction"],
+ a:1, exp:"Supracondylar fracture in children most commonly damages the anterior interosseous nerve (AIN, branch of median nerve). Test: patient cannot make an 'OK' sign (inability to flex IP joint of thumb and DIP of index). Radial nerve (posterior interosseous) is second most common."},
+
+{id:"ORT012",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"Fat embolism syndrome typically occurs 24-72 hours after long bone or pelvic fractures. Which clinical triad characterises it?",
+ o:["Haemoptysis, haematuria, and joint pain","Hypoxia, petechial rash (upper body/conjunctiva), and confusion (neurological dysfunction)","Fever, jaundice, and right heart failure","DVT, pulmonary embolism, and shock","Tachycardia, hypotension, and haemarthrosis"],
+ a:1, exp:"Fat embolism syndrome: fat globules enter bloodstream from bone marrow → hypoxia (ARDS), petechial haemorrhages (axillae, chest, conjunctiva — fat emboli in skin capillaries), and neurological dysfunction (confusion, coma). Treatment is supportive: O2, mechanical ventilation if needed."},
+
+{id:"ORT013",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"A patient with rheumatoid arthritis develops atlantoaxial subluxation. Which preoperative check is essential before intubation?",
+ o:["Cervical X-ray in full flexion and extension to assess C1-C2 instability before any general anaesthesia","MRI of lumbar spine","Nerve conduction studies","Carotid Doppler","ECG"],
+ a:0, exp:"Atlantoaxial subluxation in RA (destruction of transverse ligament by pannus) risks cord compression during neck manipulation at intubation. Flexion-extension cervical X-rays (and MRI if abnormal) are essential pre-GA. Atlanto-dens interval >3 mm in adults is significant; >9 mm is surgical emergency."},
+
+{id:"ORT014",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"Avascular necrosis (osteonecrosis) of the femoral head is a recognised complication of which conditions?",
+ o:["Osteoporosis and vitamin D deficiency only","Corticosteroid use, alcohol abuse, sickle cell disease, intracapsular hip fracture, and Caisson disease (decompression sickness)","Osteoarthritis only","Gout and pseudogout","Paget's disease only"],
+ a:1, exp:"AVN causes: corticosteroids, alcohol, sickle cell, intracapsular femoral neck fracture (disrupts blood supply), Caisson disease, SLE, radiation, Gaucher's disease. Blood supply to femoral head via retinacular vessels of medial circumflex femoral artery is vulnerable to interruption."},
+
+{id:"ORT015",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"The Trendelenburg test assesses hip abductor function. A positive Trendelenburg sign means the pelvis drops to which side?",
+ o:["The pelvis drops to the ipsilateral (standing leg) side — gluteus medius weakness on the standing side","The pelvis drops to the contralateral (lifted leg) side — gluteus medius weakness on the standing leg","The pelvis rises on both sides symmetrically","The pelvis tilts anteriorly","The pelvis has no movement"],
+ a:0, exp:"Positive Trendelenburg: when standing on the affected leg, the contralateral pelvis drops (weak hip abductors on standing side cannot maintain pelvic level). 'Sound side sags' — the pelvis drops toward the sound (opposite) side. Causes: superior gluteal nerve palsy, hip OA, CDH, previous hip surgery."},
+
+{id:"ORT016",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"A patient sustains a thoracic spine fracture-dislocation at T6/T7 with complete neurological injury. What is the expected level of functional recovery?",
+ o:["Full recovery with physiotherapy alone","Paraplegia with loss of motor and sensory function below T6, loss of bladder/bowel control, but preserved upper limb and respiratory function","Quadriplegia with loss of all four limbs","Incomplete injury with good prognosis for walking","Hemi-plegia affecting only the left side"],
+ a:1, exp:"Complete injury at T6 = paraplegia: bilateral loss of motor, sensory, and autonomic function below T6. Upper limb function, diaphragmatic breathing (C3-C5), and hand function are preserved. Bladder and bowel are neurogenic. T4 and above risks autonomic dysreflexia."},
+
+{id:"ORT017",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"Which investigation is essential within 6 hours of suspected cauda equina syndrome to prevent permanent neurological deficit?",
+ o:["Plain lumbar X-ray","CT myelogram","Emergency MRI of the lumbar spine, followed by urgent surgical decompression","Electromyography","Lumbar puncture"],
+ a:2, exp:"Cauda equina syndrome (saddle anaesthesia, bilateral leg weakness, urinary retention/incontinence) is a surgical emergency. Emergency MRI confirms diagnosis. Surgical decompression within 6-48 hours is critical — delay increases risk of permanent bladder, bowel, and sexual dysfunction."},
+
+{id:"ORT018",topic:"Orthopaedics & Trauma",difficulty:"Hard",source:"PP",
+ q:"Perthes' disease (Legg-Calvé-Perthes) affects which patient group and involves which pathology?",
+ o:["Elderly women with osteoporosis — insufficiency fracture","Boys aged 4-8 years — idiopathic avascular necrosis of the femoral capital epiphysis","Adolescent boys — slipped capital femoral epiphysis","Young athletes — stress fracture of the femoral neck","Neonates — developmental dysplasia of the hip"],
+ a:1, exp:"Perthes' disease: idiopathic AVN of the femoral head epiphysis in children aged 4-8, predominantly boys (4:1). Presents with painless limp, hip/knee pain. X-ray: flattened, fragmented femoral head. Management: containment (casting/bracing/osteotomy) to maintain femoral head shape during revascularisation."},
+
+// ============================================================
+// THYROID & NECK  (14 questions: 2E 6M 6H)
+// ============================================================
+{id:"THY001",topic:"Thyroid & Neck",difficulty:"Easy",source:"PP",
+ q:"A midline neck lump that moves on swallowing AND on tongue protrusion is most likely which lesion?",
+ o:["Thyroid goitre","Thyroglossal cyst","Branchial cyst","Lymph node","Dermoid cyst"],
+ a:1, exp:"Thyroglossal cyst: midline neck lump that moves on swallowing (attached to hyoid bone/strap muscles) AND on tongue protrusion (embryological remnant of thyroglossal duct from foramen caecum). Thyroid moves on swallowing but NOT on tongue protrusion."},
+
+{id:"THY002",topic:"Thyroid & Neck",difficulty:"Easy",source:"PP",
+ q:"Which nerve is most at risk during thyroid surgery and, if injured bilaterally, causes what complication?",
+ o:["Superior laryngeal nerve — causes hoarse voice if bilateral","Recurrent laryngeal nerve — bilateral injury causes respiratory obstruction (bilateral cord palsy) requiring tracheostomy","Hypoglossal nerve — causes tongue deviation","Glossopharyngeal nerve — causes dysphagia only","Accessory nerve — causes shoulder drop"],
+ a:1, exp:"Recurrent laryngeal nerve (RLN) runs in the tracheo-oesophageal groove, at risk during thyroid and parathyroid surgery. Unilateral injury → hoarse voice. Bilateral injury → bilateral vocal cord palsy → respiratory obstruction requiring immediate tracheostomy."},
+
+{id:"THY003",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"A lateral neck lump in a 25-year-old presents anterior to the sternocleidomastoid muscle, is cystic, and transilluminates. It appeared after an upper respiratory tract infection. What is the most likely diagnosis?",
+ o:["Thyroglossal cyst","Branchial cyst","Reactive lymph node","Carotid body tumour","Cystic hygroma"],
+ a:1, exp:"Branchial cyst: lateral neck cyst arising from the second pharyngeal pouch remnant. Location: anterior to SCM, at the junction of upper and middle thirds of neck. Often presents or enlarges after URTI. Treatment: surgical excision."},
+
+{id:"THY004",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"Chvostek's sign and Trousseau's sign indicate hypocalcaemia after thyroid surgery. Which structure was likely damaged or removed?",
+ o:["Recurrent laryngeal nerve","Parathyroid glands","Thyroid isthmus","External branch of superior laryngeal nerve","Thoracic duct"],
+ a:1, exp:"Inadvertent removal or devascularisation of parathyroid glands during thyroidectomy causes hypoparathyroidism → hypocalcaemia. Chvostek's sign = facial twitch on tapping facial nerve. Trousseau's sign = carpal spasm with BP cuff inflation. Treat with IV calcium gluconate acutely."},
+
+{id:"THY005",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"Which investigation is the best first-line assessment of a thyroid nodule?",
+ o:["Radioiodine uptake scan","Thyroid ultrasound with FNAC (fine needle aspiration cytology)","CT neck with contrast","MRI thyroid","Serum thyroglobulin"],
+ a:1, exp:"Thyroid nodule assessment: USS (characterise the nodule — Thy/U classification) + FNAC (cytological diagnosis). USS-guided FNAC is the gold standard. Radionuclide scan is useful if TSH is suppressed (to identify a hot/autonomous nodule, which is rarely malignant)."},
+
+{id:"THY006",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"Papillary thyroid carcinoma has which characteristic histological finding and what is its main route of spread?",
+ o:["Amyloid stroma — spreads haematogenously to lungs","Psammoma bodies and Orphan Annie eye nuclei — spreads via lymphatics to cervical nodes","Follicular arrangement — spreads via lymphatics","Hurthle cell transformation — spreads to bone","Small cell pattern — spreads to liver"],
+ a:1, exp:"Papillary thyroid carcinoma (most common thyroid cancer, 70-80%): psammoma bodies, papillary projections, Orphan Annie eye nuclei (empty-looking nuclei), nuclear grooves. Spreads via lymphatics to cervical lymph nodes. Excellent prognosis (95% 10-year survival)."},
+
+{id:"THY007",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"Which thyroid cancer is associated with elevated serum calcitonin and is derived from parafollicular C-cells?",
+ o:["Papillary carcinoma","Follicular carcinoma","Medullary thyroid carcinoma","Anaplastic carcinoma","Hurthle cell carcinoma"],
+ a:2, exp:"Medullary thyroid carcinoma (MTC) arises from parafollicular C-cells that produce calcitonin. Serum calcitonin is a specific tumour marker. 25% are hereditary (MEN2A/2B — RET proto-oncogene). Family members require genetic testing and prophylactic thyroidectomy if RET mutation confirmed."},
+
+{id:"THY008",topic:"Thyroid & Neck",difficulty:"Medium",source:"PP",
+ q:"Pemberton's sign is used to diagnose which thyroid condition?",
+ o:["Graves' disease only","Retrosternal goitre causing superior mediastinal compression (arm elevation causes facial flushing, venous distension, and stridor)","Toxic adenoma","Hashimoto's thyroiditis","Thyroid storm"],
+ a:1, exp:"Pemberton's sign: patient raises both arms above head → facial flushing, cyanosis, venous distension of neck, and stridor. This indicates retrosternal goitre causing superior mediastinal obstruction when the goitre is pushed upwards. Requires CT chest and surgical resection."},
+
+{id:"THY009",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"Anaplastic thyroid carcinoma has which clinical characteristics that distinguish it from differentiated thyroid cancers?",
+ o:["Slow-growing, highly curable with radioiodine","Rapidly growing, extremely aggressive, median survival 3-6 months; responds poorly to all treatment modalities","Occurs in children exclusively","Always presents with hyperthyroidism","Spreads only via lymphatics, curable with surgery"],
+ a:1, exp:"Anaplastic thyroid carcinoma is one of the most aggressive human cancers. Median survival 3-6 months. Presents as rapidly enlarging neck mass causing tracheal/oesophageal compression. Does not take up radioiodine. Treatment is palliative (external beam radiotherapy ± chemotherapy). Surgery for airway management only."},
+
+{id:"THY010",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"MEN2A (Multiple Endocrine Neoplasia type 2A) is associated with which triad of tumours?",
+ o:["Pituitary adenoma, pancreatic islet cell tumour, parathyroid hyperplasia (MEN1)","Medullary thyroid carcinoma, phaeochromocytoma, and primary hyperparathyroidism","Papillary thyroid carcinoma, adrenal adenoma, and insulinoma","Carcinoid tumour, gastrinoma, and prolactinoma","Anaplastic thyroid carcinoma, phaeochromocytoma, and VIPoma"],
+ a:1, exp:"MEN2A: medullary thyroid carcinoma + phaeochromocytoma + primary hyperparathyroidism. Caused by RET proto-oncogene mutation. Phaeochromocytoma MUST be excluded before thyroid surgery (risk of hypertensive crisis under anaesthesia). MEN1 (Wermer's): pituitary + pancreas + parathyroid."},
+
+{id:"THY011",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"Thyroid storm (thyrotoxic crisis) is precipitated most commonly by which event and how is it managed?",
+ o:["Hypothermia — managed with thyroid replacement","Surgery or infection in an uncontrolled hyperthyroid patient — managed with propylthiouracil, Lugol's iodine, beta-blockers, dexamethasone, and cooling","Radioiodine therapy in all patients — managed with supportive care","Hypothyroidism — managed with thyroxine","Hypocalcaemia — managed with calcium infusion"],
+ a:1, exp:"Thyroid storm is precipitated by surgery, infection, or trauma in uncontrolled hyperthyroidism. Management: propylthiouracil (blocks synthesis + T4→T3 conversion) → then Lugol's iodine (blocks release, given after PTU) → propranolol (blocks adrenergic effects) → dexamethasone + supportive care."},
+
+{id:"THY012",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"Which lymph node group is palpated at the angle of the mandible and is associated with drainage from the posterior scalp and nasopharynx?",
+ o:["Submental nodes","Submandibular nodes","Jugulodigastric (tonsillar) nodes","Posterior cervical nodes","Supraclavicular nodes"],
+ a:2, exp:"Jugulodigastric (tonsillar) nodes lie at the angle of the mandible, at the junction of the internal jugular vein and posterior belly of digastric. They drain the tonsil, posterior tongue, and oropharynx. Enlargement may indicate tonsillar cancer, lymphoma, or infectious mononucleosis."},
+
+{id:"THY013",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"A supraclavicular lymph node (Virchow's node / Troisier's sign) on the LEFT side is associated with which primary malignancy?",
+ o:["Breast cancer on the right","Lung cancer on the right","Intra-abdominal malignancy (gastric, pancreatic, colonic cancer) via thoracic duct","Head and neck cancer on the left","Testicular cancer on the right"],
+ a:2, exp:"Left supraclavicular (Virchow's) node = Troisier's sign. The thoracic duct drains into the left subclavian vein. Intra-abdominal malignancies (gastric, pancreatic, colorectal, ovarian) spread via the thoracic duct to left supraclavicular nodes. Right supraclavicular nodes drain the right thorax and lung."},
+
+{id:"THY014",topic:"Thyroid & Neck",difficulty:"Hard",source:"PP",
+ q:"Carotid body tumour (paraganglioma) has which characteristic clinical finding on examination?",
+ o:["Pulsatile, non-expansile, cannot be compressed, moves with carotid","Splays the carotid bifurcation — mobile horizontally but not vertically; pulsatile; may have bruit","Transilluminates brightly","Moves on tongue protrusion","Is always bilateral and associated with MEN2A"],
+ a:1, exp:"Carotid body tumour: lies at carotid bifurcation, splays internal and external carotid arteries (Lyre sign on angiogram). Mobile side to side (transversely) but NOT up and down (fixed to carotid). Pulsatile, may have bruit. Risks: cranial nerve injury, stroke during surgery."},
+
+// ============================================================
+// VASCULAR SURGERY  (14 questions: 2E 6M 6H)
+// ============================================================
+{id:"VAS001",topic:"Vascular Surgery",difficulty:"Easy",source:"PP",
+ q:"Intermittent claudication is defined as which symptom?",
+ o:["Rest pain in the foot worse at night, relieved by hanging leg down","Calf/thigh pain on walking a reproducible distance, relieved by rest within minutes","Constant leg swelling with skin changes","Sudden onset limb pain with pallor and absent pulse","Leg pain worse on standing, relieved by elevation"],
+ a:1, exp:"Claudication = reproducible muscle pain on walking (ischaemia from increased demand), relieved by rest within minutes. It reflects moderate peripheral arterial disease. Critical limb ischaemia = rest pain and/or tissue loss (Fontaine III-IV)."},
+
+{id:"VAS002",topic:"Vascular Surgery",difficulty:"Easy",source:"PP",
+ q:"Which measurement is used to screen for peripheral arterial disease in the lower limb?",
+ o:["Serum cholesterol","CT angiography","Ankle Brachial Pressure Index (ABPI)","Doppler venous duplex scan","D-dimer"],
+ a:2, exp:"ABPI = ankle systolic pressure ÷ brachial systolic pressure. Normal ≥1.0; claudication typically 0.5-0.9; critical limb ischaemia <0.5; >1.3 suggests calcified (non-compressible) vessels (diabetes). ABPI is the primary non-invasive screening test for PAD."},
+
+{id:"VAS003",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"In the Trendelenburg test for varicose veins, the tourniquet is applied and the patient then stands. Veins that refill rapidly even with the tourniquet in place indicate which finding?",
+ o:["Sapheno-femoral junction incompetence only","Incompetent perforating veins below the tourniquet","Normal venous function","Deep venous thrombosis","Arteriovenous fistula"],
+ a:1, exp:"If veins refill with tourniquet in place → incompetent perforators below the tourniquet. If they only refill when the tourniquet is released → SFJ incompetence. Moving the tourniquet to different levels identifies the site of incompetence."},
+
+{id:"VAS004",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"An abdominal aortic aneurysm (AAA) is defined as aortic diameter exceeding which measurement?",
+ o:["2.0 cm","3.0 cm","4.0 cm","5.0 cm","6.0 cm"],
+ a:1, exp:"AAA is defined as aortic diameter >3.0 cm (normal aorta <2.5 cm). Elective repair is recommended when diameter ≥5.5 cm in men (rupture risk outweighs operative mortality). The UK AAA Screening Programme screens all men aged 65 with abdominal USS."},
+
+{id:"VAS005",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"A patient with an arterial leg/foot ulcer is most likely to have which ulcer characteristics?",
+ o:["Shallow, irregular edges, medial gaiter region, surrounding haemosiderin staining","Punched-out edge, painful, on pressure areas (heel, toe, lateral foot), with absent peripheral pulses","Painless neuropathic ulcer over pressure points with normal pulses","Undermined edges, lymphoedema, recurrent cellulitis","Circular ulcer with rolled edges suggesting malignancy"],
+ a:1, exp:"Arterial ulcers: punched-out appearance (clear-cut edges), occur on pressure/distal areas (toes, heel, lateral foot), painful at rest, associated with absent pulses and low ABPI. Venous ulcers: shallow, irregular, over medial gaiter area, surrounded by haemosiderin/lipodermatosclerosis."},
+
+{id:"VAS006",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"In examining a 70-year-old hypertensive man's arterial system, where is the femoral artery correctly palpated?",
+ o:["At the mid-point between the ASIS and the pubic symphysis","At the mid-inguinal point — halfway between ASIS and pubic tubercle","At the medial border of the femoral triangle","At the mid-point of the inguinal ligament (= mid between ASIS and pubic tubercle)","At the level of the greater trochanter"],
+ a:1, exp:"The femoral artery is palpated at the mid-inguinal point — halfway between the anterior superior iliac spine (ASIS) and the pubic tubercle (not symphysis). The mid-point of the inguinal ligament = mid between ASIS and pubic tubercle. This is where the femoral artery passes under the inguinal ligament."},
+
+{id:"VAS007",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"Which clinical feature differentiates an acute limb ischaemia from chronic peripheral arterial disease?",
+ o:["Claudication only in chronic disease","The 6 Ps of acute ischaemia (Pain, Pallor, Pulselessness, Paraesthesia, Paralysis, Perishing cold) developing suddenly in a previously normal or stable limb","Gangrene is only seen in acute disease","ABPI >0.9 in acute ischaemia","Venous guttering only in chronic disease"],
+ a:1, exp:"Acute limb ischaemia: sudden onset 6 Ps — Pain, Pallor, Pulselessness, Paraesthesia, Paralysis (late — muscle/nerve ischaemia), Perishing cold. It is a vascular emergency; revascularisation within 6 hours prevents irreversible ischaemia. Paralysis and paraesthesia indicate severe ischaemia requiring urgent intervention."},
+
+{id:"VAS008",topic:"Vascular Surgery",difficulty:"Medium",source:"PP",
+ q:"Which condition is associated with a pulsatile, expansile epigastric mass in a 72-year-old man?",
+ o:["Pancreatic pseudocyst","Abdominal aortic aneurysm","Hepatomegaly","Perforated duodenal ulcer","Retroperitoneal sarcoma"],
+ a:1, exp:"A pulsatile, expansile epigastric mass in an elderly male is an AAA until proven otherwise. 'Expansile' pulsation (mass expands with each heartbeat, pushing fingers apart) distinguishes it from a transmitted pulsion. USS confirms diameter. CT angiography is used for surgical planning."},
+
+{id:"VAS009",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"A patient with a ruptured AAA presents with the classic triad of sudden severe back pain, hypotension, and a pulsatile abdominal mass. What is the immediate management?",
+ o:["CT angiography before any intervention","Permissive hypotension (systolic 50-70 mmHg), urgent transfer to theatre for emergency open or EVAR repair","IV fluids to maintain normal BP, then CT angiography","Aortic balloon tamponade in the ED","Observation in resuscitation bay for 2 hours"],
+ a:1, exp:"Ruptured AAA: permissive hypotension (target systolic 50-70 mmHg) prevents clot disruption while arranging emergency repair. Over-resuscitation increases bleeding. Immediate transfer to theatre for emergency open repair or EVAR (if anatomy suitable and team available). Mortality 40-50% even with treatment."},
+
+{id:"VAS010",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"Leriche syndrome describes which clinical triad from aortoiliac occlusive disease?",
+ o:["Bilateral leg claudication, absent femoral pulses, and impotence (erectile dysfunction)","Unilateral leg rest pain, gangrene, and ankle ulceration","Bilateral leg oedema, varicose veins, and DVT","Hypertension, renal artery stenosis, and abdominal bruit","Bilateral Raynaud's phenomenon, leg pain, and livedo reticularis"],
+ a:0, exp:"Leriche syndrome: aortoiliac occlusion causing (1) bilateral buttock/thigh claudication, (2) absent femoral pulses bilaterally, (3) impotence (internal iliac artery occlusion). Treat with aortobifemoral bypass or endovascular stenting."},
+
+{id:"VAS011",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"A diabetic patient with a non-healing foot ulcer has ABPI of 1.4. What does this indicate and what further investigation is needed?",
+ o:["Normal arterial supply — no further vascular investigation needed","Severe peripheral arterial disease — urgent angiography","ABPI >1.3 indicates medial calcification (non-compressible vessels) — falsely elevated; toe-brachial index (TBI) or duplex should be used","Venous hypertension — compression bandaging required","Complete arterial occlusion — immediate amputation"],
+ a:2, exp:"ABPI >1.3 indicates non-compressible (calcified) vessels — common in diabetics. The result is falsely elevated and unreliable. Toe-brachial index (TBI; normal ≥0.7) or pulse volume recordings should be used instead, as toe vessels are less affected by calcification."},
+
+{id:"VAS012",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"Carotid endarterectomy is recommended for symptomatic carotid stenosis above which threshold, as per ECST and NASCET trial criteria?",
+ o:["30% stenosis","50% stenosis (NASCET criteria — 70% ECST equivalent)","70% stenosis (NASCET criteria — reduces stroke risk from 26% to 9%)","90% stenosis only","Only for 100% occlusion"],
+ a:2, exp:"NASCET: CEA reduces 5-year ipsilateral stroke risk from 26% to 9% for 70-99% symptomatic stenosis. Benefit also exists for 50-69%. No benefit for <50% or for asymptomatic stenosis <60%. CEA should be performed within 2 weeks of TIA/minor stroke for maximum benefit."},
+
+{id:"VAS013",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"A 40-year-old woman with cold, painful digits on cold exposure showing colour changes (white → blue → red) most likely has which condition?",
+ o:["Acute limb ischaemia","Raynaud's phenomenon — vasospasm causing triphasic colour change (pallor-cyanosis-erythema) on cold exposure","Buerger's disease","Critical limb ischaemia","Erythromelalgia"],
+ a:1, exp:"Raynaud's phenomenon: vasospasm of digital arteries causing triphasic colour changes (white=pallor, blue=cyanosis, red=reactive hyperaemia) in response to cold or emotional stress. Primary (Raynaud's disease) has no underlying cause. Secondary causes: scleroderma, SLE, vibration tools, medications (beta-blockers)."},
+
+{id:"VAS014",topic:"Vascular Surgery",difficulty:"Hard",source:"PP",
+ q:"Buerger's disease (thromboangiitis obliterans) has which distinctive features compared to atherosclerotic peripheral arterial disease?",
+ o:["Occurs in elderly hypertensive men; large vessel disease","Occurs in young male heavy smokers; involves small and medium vessels; may affect upper limb; no atherosclerosis; strongly linked to tobacco use","Predominantly affects women; associated with hypercholesterolaemia","Affects only the abdominal aorta; no limb involvement","Occurs in diabetics; large vessel proximal occlusion"],
+ a:1, exp:"Buerger's: young male heavy smokers (<45), small-medium vessel vasculitis, affects tibial/radial/ulnar arteries, may involve upper limb, migrating superficial phlebitis. NOT atherosclerosis. Cessation of smoking is the only treatment that halts progression. Amputation rates are high if smoking continues."},
+
+// ============================================================
+// SURFACE ANATOMY  (10 questions: 2E 4M 4H)
+// ============================================================
+{id:"SUR001",topic:"Surface Anatomy",difficulty:"Easy",source:"PP",
+ q:"The gallbladder fundus is located at the surface where two anatomical lines intersect. Which is correct?",
+ o:["Where the mid-clavicular line meets the transpyloric plane","Where the lateral border of rectus abdominis meets the right costal margin","At the epigastric midpoint","At the right mid-axillary line at the 9th rib","At the right iliac fossa"],
+ a:1, exp:"The gallbladder fundus lies where the lateral border of rectus abdominis intersects the right costal margin (tip of 9th costal cartilage). Murphy's sign is elicited here. This is an important surface anatomy landmark tested in surgical examinations."},
+
+{id:"SUR002",topic:"Surface Anatomy",difficulty:"Easy",source:"PP",
+ q:"The surface marking of the transpyloric plane (of Addison) is at which vertebral level?",
+ o:["T10","T12","L1","L3","L5"],
+ a:2, exp:"The transpyloric plane (Addison's plane) lies at L1, halfway between suprasternal notch and pubic symphysis. Structures at L1: pylorus, duodenojejunal flexure, neck of pancreas, hila of kidneys, origin of SMA, portal vein formation, fundus of gallbladder."},
+
+{id:"SUR003",topic:"Surface Anatomy",difficulty:"Medium",source:"PP",
+ q:"The femoral artery is found at the mid-inguinal point. The femoral vein lies in which position relative to the artery?",
+ o:["Lateral to the artery","Medial to the artery","Posterior to the artery","Deep to the artery","Anterior to the artery"],
+ a:1, exp:"The femoral triangle contents (medial to lateral): VAN — Vein, Artery, Nerve (femoral). The femoral vein lies medial to the artery; the femoral nerve lies lateral. This is critical for femoral vein cannulation and femoral nerve block landmarks."},
+
+{id:"SUR004",topic:"Surface Anatomy",difficulty:"Medium",source:"PP",
+ q:"The sapheno-femoral junction (SFJ) is located at which surface landmark?",
+ o:["At the mid-inguinal point","3.5 cm below and lateral to the pubic tubercle","At the adductor canal in the mid-thigh","At the popliteal fossa","Medial to the anterior superior iliac spine"],
+ a:1, exp:"The SFJ (where the great saphenous vein joins the femoral vein) lies 3.5 cm below and lateral to the pubic tubercle (NOT at the inguinal ligament level). This is the site of ligation and flush ligation in high saphenous ligation for varicose vein surgery."},
+
+{id:"SUR005",topic:"Surface Anatomy",difficulty:"Medium",source:"PP",
+ q:"The dorsalis pedis artery is palpated at which surface location?",
+ o:["In the distal third of the first inter-metatarsal space lateral to extensor hallucis longus tendon","On the dorsum of the foot between the 1st and 2nd metatarsals, lateral to EHL tendon","At the posterior tibialis position","At the lateral malleolus","At the navicular bone"],
+ a:1, exp:"Dorsalis pedis: palpated on the dorsum of foot between 1st and 2nd metatarsals, lateral to the extensor hallucis longus (EHL) tendon. It is the continuation of the anterior tibial artery. Absent in 5-10% of normal population — not necessarily indicative of arterial disease if posterior tibial is palpable."},
+
+{id:"SUR006",topic:"Surface Anatomy",difficulty:"Medium",source:"PP",
+ q:"The internal inguinal ring is located at which surface point?",
+ o:["At the pubic tubercle","Midway along the inguinal ligament (above the midpoint of the inguinal ligament, above the femoral artery)","At the external inguinal ring at the pubic crest","At the ASIS","At the umbilicus"],
+ a:1, exp:"The internal (deep) inguinal ring lies just above the midpoint of the inguinal ligament (midway between ASIS and pubic tubercle), 1-1.5 cm above the femoral artery. The external (superficial) inguinal ring is above and medial to the pubic tubercle."},
+
+{id:"SUR007",topic:"Surface Anatomy",difficulty:"Hard",source:"PP",
+ q:"When auscultating for a carotid bruit at the carotid bifurcation, the stethoscope is placed over which surface landmark?",
+ o:["Lower third of the anterior sternocleidomastoid (SCM)","Upper third of the anterior SCM border at the level of the thyroid cartilage","Posterior to the SCM at the level of C6","Directly over the trachea at the cricoid","At the angle of the mandible"],
+ a:1, exp:"The carotid bifurcation lies at the level of the thyroid cartilage (C3-C4 vertebral level), at the upper third of the anterior border of SCM. Auscultation here detects carotid bruits from stenosis. Renal bruits are auscultated 2-3 cm lateral to the umbilicus."},
+
+{id:"SUR008",topic:"Surface Anatomy",difficulty:"Hard",source:"PP",
+ q:"During examination of a patient's abdomen, the spleen is palpated starting from the right iliac fossa and working toward the left costal margin. At which vertebral levels do the splenic hilum and the 10th rib notch lie in the mid-axillary line?",
+ o:["T8-T9","T10-T11 in mid-axillary line; splenic hilum at L1","T12-L1","L2-L3","T6-T8"],
+ a:1, exp:"The spleen lies in the left hypochondrium under ribs 9-11 in the mid-axillary line. The splenic hilum is at L1. The spleen is normally not palpable; it must enlarge to 2-3x normal size before it becomes palpable. Starting in the RIF prevents missing a massively enlarged spleen."},
+
+{id:"SUR009",topic:"Surface Anatomy",difficulty:"Hard",source:"PP",
+ q:"On surface anatomy, the transpyloric plane at L1 passes through which set of structures?",
+ o:["Renal cortex only, aortic bifurcation","Pylorus, duodenojejunal flexure, neck of pancreas, renal hila, fundus of gallbladder, SMA origin, formation of portal vein","Aortic bifurcation, ureters, cecum","Liver, stomach, spleen, left kidney only","Umbilicus, appendix base, sigmoid colon"],
+ a:1, exp:"Transpyloric plane (L1): pylorus, 1st part of duodenum (DJ flexure), neck of pancreas, splenic vein, portal vein formation, superior mesenteric artery origin, adrenal glands, fundus of gallbladder, and renal hila. A high-yield anatomy landmark."},
+
+{id:"SUR010",topic:"Surface Anatomy",difficulty:"Hard",source:"PP",
+ q:"During surface examination of lymphatics, cancer of the anal canal below the dentate line spreads to which lymph node group?",
+ o:["Para-aortic nodes","Internal iliac nodes","Mesenteric nodes","Inguinal nodes","Superior rectal nodes"],
+ a:3, exp:"Below the dentate line = somatic drainage → inguinal lymph nodes. Above the dentate line = visceral drainage → internal iliac → para-aortic nodes. This is clinically important: SCC of anal canal (below dentate) can present with inguinal lymphadenopathy. Rectal cancer (above) does NOT spread to inguinal nodes."},
+
+// ============================================================
+// GENERAL SURGERY PRINCIPLES  (16 questions: 3E 7M 6H)
+// ============================================================
+{id:"GEN001",topic:"General Surgery Principles",difficulty:"Easy",source:"PP",
+ q:"Which fluid is considered isotonic and most appropriate for initial intravenous resuscitation?",
+ o:["5% dextrose","0.9% normal saline or Hartmann's (Ringer's lactate) solution","Half-normal saline (0.45%)","5% dextrose saline","Sterile water for injection"],
+ a:1, exp:"Isotonic crystalloids — 0.9% NaCl (normal saline) or Hartmann's solution (balanced crystalloid) — are first-line for IV fluid resuscitation. 5% dextrose distributes freely and is not appropriate for resuscitation. Hartmann's is preferred in most resuscitation scenarios as it is more physiological."},
+
+{id:"GEN002",topic:"General Surgery Principles",difficulty:"Easy",source:"PP",
+ q:"Which post-operative complication characteristically presents as pyrexia within the first 24 hours of surgery?",
+ o:["Wound infection","Anastomotic leak","Deep vein thrombosis","Basal atelectasis / systemic response to surgical trauma","Urinary tract infection"],
+ a:3, exp:"Fever in the first 24-48 hours post-operatively is most commonly due to basal atelectasis (Wind) or the systemic inflammatory response to surgical trauma. Wound infection typically presents days 3-7; DVT/PE days 4-10; urinary sepsis from day 3; anastomotic leak days 5-7."},
+
+{id:"GEN003",topic:"General Surgery Principles",difficulty:"Easy",source:"PP",
+ q:"The 'Five Ws' mnemonic for post-operative fever lists causes at different time intervals. Which W represents urinary infection?",
+ o:["Wind (days 1-2)","Water (days 3-5 — urinary tract infection)","Wound (days 5-7)","Walking (days 4-6 — DVT)","Wonder drugs (day 7+)"],
+ a:1, exp:"Post-op fever: Wind (days 1-2 = atelectasis/pneumonia), Water (days 3-5 = UTI), Wound (days 5-7 = wound infection), Walking (days 4-6 = DVT/PE), Wonder drugs (any time = drug fever/C. diff). This mnemonic aids systematic assessment of post-operative pyrexia."},
+
+{id:"GEN004",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"Informed consent for surgery requires which three key elements?",
+ o:["Patient signature, witness signature, and surgeon's countersignature","Disclosure of risks and benefits, patient understanding, and voluntary agreement (free from coercion)","Two surgeons' agreement, anaesthetist's consent, and nursing documentation","Written form only — verbal consent is never valid","Patient must be >21 years of age"],
+ a:1, exp:"Valid informed consent requires: (1) Disclosure — sufficient information about risks, benefits, alternatives; (2) Capacity — patient understands and can retain/weigh information; (3) Voluntariness — free from coercion. A signature alone does not constitute consent — the process matters."},
+
+{id:"GEN005",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"Patient-controlled analgesia (PCA) is most effective for which type of post-operative patient?",
+ o:["Paediatric patients under 5 years","Cognitively impaired patients","Patients who can self-administer bolus doses to achieve individualised opioid titration","Patients requiring epidural anaesthesia","All post-operative patients equally"],
+ a:2, exp:"PCA allows self-administration of bolus opioid doses by patients who are cognitively intact and can understand the device. It provides better pain control than fixed-interval IM morphine by allowing individualised titration according to the patient's perceived pain and opioid requirements."},
+
+{id:"GEN006",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"Surgical diathermy uses which type of electrical current and why is it safe for the heart?",
+ o:["Low-frequency DC current — safe because it does not cause arrhythmia","High-frequency AC current (>100 kHz) — safe because cardiac muscle cannot respond to such high frequencies","Direct current at 50 Hz — same as domestic electricity","Ultraviolet radiation converted to electrical energy","Low-voltage alternating current at mains frequency (50 Hz)"],
+ a:1, exp:"Surgical diathermy uses high-frequency AC current (0.5-3 MHz). Cardiac muscle has a refractory period and cannot respond to frequencies >100 kHz — preventing ventricular fibrillation. Monopolar diathermy uses a return plate; bipolar does not, making it safer near neural structures."},
+
+{id:"GEN007",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"Which drain type uses negative pressure suction for wound drainage and is exemplified by a Redivac drain?",
+ o:["Corrugated drain — passive capillary drainage","Closed suction drain (Redivac/Blake) — active negative-pressure drainage","Open Penrose drain — passive sump drainage","T-tube drain — bile duct drainage","Seton drain — passive perianal drainage"],
+ a:1, exp:"Redivac (closed suction) drains create negative pressure via a vacuum bottle, actively removing fluid/blood from surgical spaces. They are closed systems (lower infection risk) used after major surgery (e.g., mastectomy, thyroidectomy, joint replacement). Corrugated drains are passive open systems."},
+
+{id:"GEN008",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"A post-operative patient develops a fever at day 7, generalised abdominal tenderness, and guarding. Their WBC is 18,000. What is the most likely diagnosis?",
+ o:["Basal atelectasis","Post-operative ileus","Anastomotic leak with peritonitis","Wound infection only","Drug fever"],
+ a:2, exp:"Anastomotic leak classically presents days 5-7 post-operatively with fever, tachycardia, generalised peritonism, and raised WBC. It is a life-threatening complication requiring urgent CT with contrast (extraluminal gas/fluid) and urgent surgical re-exploration vs. drainage."},
+
+{id:"GEN009",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"Which metabolic alkalosis is produced by prolonged vomiting of gastric contents?",
+ o:["Hyperchloraemic metabolic acidosis","Hypochloraemic hypokalaemic metabolic alkalosis","Metabolic acidosis with elevated lactate","Respiratory alkalosis","Normal anion gap acidosis"],
+ a:1, exp:"Vomiting of gastric juice loses HCl → hypochloraemic alkalosis. K+ is lost in urine as the kidney retains Na+ in exchange for K+/H+ → hypokalaemia. This triad (hypochloraemia + hypokalaemia + metabolic alkalosis) is the hallmark of pyloric stenosis or prolonged vomiting."},
+
+{id:"GEN010",topic:"General Surgery Principles",difficulty:"Medium",source:"PP",
+ q:"What is the correct management of a post-operative patient with a urine output of only 15 mL/hr on the first post-operative day?",
+ o:["Immediate dialysis","Furosemide infusion","Assess fluid balance, give a 250-500 mL crystalloid challenge, and reassess response","Restrict all fluids","Insert a urethral catheter if not already in situ, then observe"],
+ a:2, exp:"Oliguria (<0.5 mL/kg/hr) post-operatively is most commonly pre-renal (hypovolaemia). First step: assess fluid balance and clinical status, then give a fluid challenge (250-500 mL crystalloid bolus). If no response → reassess for cardiac causes, sepsis, or intrinsic renal failure. Furosemide may worsen pre-renal AKI."},
+
+{id:"GEN011",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"Damage control surgery (DCS) is applied to the 'lethal triad'. What are the three components of the lethal triad?",
+ o:["Haemorrhage, infection, and pain","Hypothermia, acidosis, and coagulopathy","Hypovolaemia, anaemia, and thrombocytopenia","Hypoxia, hypotension, and hypoglycaemia","Bradycardia, hyperthermia, and hyponatraemia"],
+ a:1, exp:"The lethal triad in major trauma: hypothermia + acidosis + coagulopathy. Each worsens the others in a vicious cycle. DCS principle: abbreviated surgery to stop haemorrhage/contamination → ICU resuscitation to correct the triad → definitive surgery 24-48 hours later."},
+
+{id:"GEN012",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"A patient with a serum albumin of 22 g/L (normal 35-50) is at risk of wound healing problems. Why does hypoalbuminaemia impair wound healing?",
+ o:["It causes hypercalcaemia that inhibits collagen cross-linking","Albumin carries zinc, vitamin C, and growth factors required for collagen synthesis; hypoalbuminaemia reduces oncotic pressure causing oedema and impairs nutrient delivery to wound","It increases cortisol levels preventing fibroblast proliferation","It causes anaemia that reduces oxygen delivery","It increases infection risk only through reduced immunoglobulin levels"],
+ a:1, exp:"Hypoalbuminaemia impairs wound healing by: reduced oncotic pressure → tissue oedema → poor nutrient delivery; reduced transport of zinc, Vit C (co-factors for collagen synthesis); associated malnutrition reduces fibroblast proliferation and collagen production. Albumin <28 g/L is a strong predictor of poor surgical outcome."},
+
+{id:"GEN013",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"Which electrolyte abnormality is a known complication of massive blood transfusion?",
+ o:["Hypernatraemia and hypermagnesaemia","Hyperkalaemia (from lysis of stored red cells) and hypocalcaemia (citrate in stored blood chelates calcium)","Hyponatraemia and hypophosphataemia","Hyperchloraemia and hypokalaemia","Hypomagnesaemia and hyperkalaemia only"],
+ a:1, exp:"Massive transfusion complications: hyperkalaemia (K+ leaks from stored red cells over time), hypocalcaemia (citrate preservative chelates ionised calcium → cardiac depression), hypothermia, dilutional coagulopathy, and TRALI. Warm the blood; give calcium gluconate; monitor electrolytes."},
+
+{id:"GEN014",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"Enteral nutrition is preferred over total parenteral nutrition (TPN) in surgical patients for which reasons?",
+ o:["Enteral nutrition is easier to administer and cheaper only","Enteral nutrition maintains gut mucosal integrity and reduces bacterial translocation, preserves gut immunity, avoids central line sepsis, and is associated with lower complication rates","TPN is safer in all post-operative patients","Enteral nutrition provides better glucose control","TPN is preferred only in ICU patients"],
+ a:1, exp:"Enteral nutrition maintains gut mucosal integrity (prevents villous atrophy), stimulates secretory IgA, reduces bacterial translocation, avoids central line risks (infection, pneumothorax, thrombosis). 'If the gut works, use it.' TPN is reserved for when enteral feeding is impossible or inadequate."},
+
+{id:"GEN015",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"SIRS (Systemic Inflammatory Response Syndrome) is defined by two or more of which criteria?",
+ o:["WBC >10, fever >38°C, HR >80, RR >14","Temperature >38°C or <36°C, HR >90 bpm, RR >20 or PaCO2 <4.3 kPa, WBC >12,000 or <4,000 or >10% bands","BP <90, HR >100, fever, lactate >2","GCS <15, fever, oliguria, WBC >15","Fever, tachycardia, hypotension, and confusion"],
+ a:1, exp:"SIRS criteria (≥2 required): Temp >38°C or <36°C; HR >90 bpm; RR >20/min or PaCO2 <4.3 kPa; WBC >12,000 or <4,000/µL or >10% immature bands. SIRS + confirmed infection = Sepsis. SIRS + organ dysfunction = Severe Sepsis. Septic shock = Sepsis + refractory hypotension."},
+
+{id:"GEN016",topic:"General Surgery Principles",difficulty:"Hard",source:"PP",
+ q:"The Enhanced Recovery After Surgery (ERAS) protocol reduces hospital stay. Which traditional practice does it specifically challenge?",
+ o:["The use of epidural analgesia","Prolonged pre-operative fasting (now: clear fluids up to 2h before, carbohydrate loading); avoidance of routine NG tubes; early oral feeding; early mobilisation; multimodal analgesia","Routine use of prophylactic antibiotics","Use of intraoperative warming blankets","Routine deep vein thrombosis prophylaxis"],
+ a:1, exp:"ERAS challenges: prolonged nil-by-mouth (allow clear fluids 2h, solids 6h pre-op), carbohydrate drinks pre-op, avoidance of routine NG tubes, bowel prep, and drains; early post-operative feeding and mobilisation; multimodal analgesia avoiding opioids. Reduces hospital stay, complications, and costs."}
+
+
+];
+
+// ── TOPIC METADATA ─────────────────────────────────────────────
+const TOPIC_META = [
+  {name:"Acute Abdominal Pain",color:"#b5341e"},
+  {name:"Biliary Tract",color:"#9a6e00"},
+  {name:"Breast Cancer",color:"#8e24aa"},
+  {name:"GI Diseases",color:"#1d6348"},
+  {name:"Head Injury",color:"#1a4f8a"},
+  {name:"Hernia",color:"#e65100"},
+  {name:"Perianal Conditions",color:"#00695c"},
+  {name:"Pre-operative Assessment",color:"#37474f"},
+  {name:"Urological Diseases",color:"#6a1b9a"},
+  {name:"Orthopaedics & Trauma",color:"#4e342e"},
+  {name:"Thyroid & Neck",color:"#1565c0"},
+  {name:"Vascular Surgery",color:"#c62828"},
+  {name:"Surface Anatomy",color:"#2e7d32"},
+  {name:"General Surgery Principles",color:"#455a64"},
+];
+
+// Build landing chips
+const tg = document.getElementById('topics-grid');
+TOPIC_META.forEach(t=>{
+  const c=document.createElement('div');c.className='t-chip';
+  c.innerHTML=`<span class="t-dot" style="background:${t.color}"></span>${t.name}`;
+  tg.appendChild(c);
+});
+
+// ── STATE ─────────────────────────────────────────────────────
+let session=[],answers={},flags=new Set(),cur=0,secsLeft=3600,timerID=null,submitted=false;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function startTest(){
+  // Distribute questions by topic then shuffle pool
+  const byTopic={};
+  BANK.forEach(q=>{if(!byTopic[q.topic])byTopic[q.topic]=[];byTopic[q.topic].push(q);});
+  let pool=[];
+  Object.values(byTopic).forEach(arr=>pool.push(...shuffle(arr)));
+  pool=shuffle(pool);
+  session=pool.slice(0,40).map(q=>({...q,
+    opts: q.opts||q.o,
+    ans:  (q.ans!==undefined ? q.ans : q.a),
+    diff: (q.diff || (q.difficulty ? q.difficulty.toLowerCase() : 'medium')),
+    exp:  q.exp||q.explanation||''
+  }));
+
+  document.getElementById('landing').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  document.getElementById('hdr-right').style.display='flex';
+  buildDots();renderQ(0);startTimer();
+}
+
+function startTimer(){
+  timerID=setInterval(()=>{
+    secsLeft--;
+    const m=Math.floor(secsLeft/60),s=secsLeft%60;
+    const el=document.getElementById('timer');
+    el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(secsLeft<=300)el.classList.add('warn');
+    if(secsLeft<=0){clearInterval(timerID);confirmSubmit();}
+  },1000);
+}
+
+function buildDots(){
+  const c=document.getElementById('dots');c.innerHTML='';
+  session.forEach((_,i)=>{
+    const d=document.createElement('button');
+    d.className='dot';d.title=`Q${i+1}`;
+    d.onclick=()=>goTo(i);d.id=`dot${i}`;
+    c.appendChild(d);
+  });
+  syncDots();
+}
+
+function syncDots(){
+  session.forEach((_,i)=>{
+    const d=document.getElementById(`dot${i}`);
+    if(!d)return;
+    d.className='dot'+(i===cur?' cur':'')+(answers[i]!==undefined?' ans':'')+(flags.has(i)?' flag':'');
+  });
+}
+
+function renderQ(idx){
+  cur=idx;
+  const q=session[idx];
+  // meta
+  document.getElementById('q-num').textContent=`QUESTION ${idx+1} OF 40`;
+  document.getElementById('q-topic-tag').textContent=q.topic;
+  const dEl=document.getElementById('q-diff');
+  dEl.textContent=q.diff.charAt(0).toUpperCase()+q.diff.slice(1);
+  dEl.className=`q-diff diff-${q.diff}`;
+  document.getElementById('q-source').textContent=`Source: ${q.src}`;
+  document.getElementById('q-text').textContent=q.q;
+
+  // options
+  const list=document.getElementById('opts');list.innerHTML='';
+  const letters=['A','B','C','D','E'];
+  q.opts.forEach((opt,oi)=>{
+    const li=document.createElement('li');
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(answers[idx]===oi?' chosen':'');
+    btn.innerHTML=`<span class="opt-ltr">${letters[oi]}</span><span>${opt}</span>`;
+    // During test: no correct/wrong reveal
+    if(!submitted){
+      btn.onclick=()=>{answers[idx]=oi;renderQ(idx);}
+    } else {
+      btn.disabled=true;
+      // Show review colours
+      if(oi===q.ans) btn.classList.add('rev-correct');
+      else if(oi===answers[idx]) btn.classList.add('rev-wrong');
+    }
+    li.appendChild(btn);list.appendChild(li);
+  });
+
+  // explanation only after submit
+  const expBox=document.getElementById('exp-box');
+  document.getElementById('exp-text').textContent=q.exp;
+  expBox.className='exp-box'+(submitted?' show':'');
+
+  // flag button
+  const fb=document.getElementById('btn-flag');
+  fb.className='btn-flag'+(flags.has(idx)?' flagged':'');
+  fb.textContent=flags.has(idx)?'⚑ Flagged':'⚑ Flag';
+
+  // nav
+  document.getElementById('btn-next').style.display=idx<39?'inline-block':'none';
+  document.getElementById('btn-sub').style.display=idx===39&&!submitted?'inline-block':'none';
+
+  // progress
+  document.getElementById('prog-label').textContent=`Q ${idx+1} / 40`;
+  document.getElementById('prog-fill').style.width=((idx+1)/40*100)+'%';
+
+  syncDots();
+  // unanswered warning
+  const ua=40-Object.keys(answers).length;
+  const wb=document.getElementById('warn-bar');
+  if(ua>0&&!submitted){wb.textContent=`${ua} question${ua>1?'s':''} unanswered`;wb.className='warn-bar show';}
+  else wb.className='warn-bar';
+}
+
+function nextQ(){if(cur<39)renderQ(cur+1);}
+function prevQ(){if(cur>0)renderQ(cur-1);}
+function goTo(i){renderQ(i);}
+function toggleFlag(){if(flags.has(cur))flags.delete(cur);else flags.add(cur);renderQ(cur);}
+
+function openModal(){
+  const ua=40-Object.keys(answers).length;
+  document.getElementById('modal-msg').textContent=ua>0
+    ?`You have ${ua} unanswered question${ua>1?'s':''}. Once submitted you will see your full feedback and cannot change answers.`
+    :'You have answered all questions. Once submitted you will see your full results and explanations.';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+function confirmSubmit(){
+  closeModal();
+  if(submitted)return;
+  submitted=true;
+  clearInterval(timerID);
+  showResults();
+}
+
+// ── RESULTS ───────────────────────────────────────────────────
+function showResults(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('hdr-right').style.display='none';
+
+  let correct=0;
+  const tStats={};
+  session.forEach((q,i)=>{
+    const isC=answers[i]===q.ans;
+    if(isC)correct++;
+    if(!tStats[q.topic])tStats[q.topic]={correct:0,total:0,color:TOPIC_META.find(t=>t.name===q.topic)?.color||'#666'};
+    tStats[q.topic].total++;
+    if(isC)tStats[q.topic].correct++;
+  });
+
+  const pct=Math.round(correct/40*100);
+  const timeTaken=3600-secsLeft;
+  const tMin=Math.floor(timeTaken/60),tSec=timeTaken%60;
+
+  let grade,gradeBg,gradeColor,msg;
+  if(pct>=80){grade='PASS';gradeBg='#e8f5e9';gradeColor='#1b5e20';msg='Excellent performance, Kelly!';}
+  else if(pct>=60){grade='BORDERLINE';gradeBg='#fff8e1';gradeColor='#e65100';msg='Keep pushing — you\'re close!';}
+  else{grade='NEEDS WORK';gradeBg='#fce4ec';gradeColor='#880e4f';msg='Use this report to sharpen your revision!';}
+
+  const sorted=Object.entries(tStats).sort((a,b)=>(a[1].correct/a[1].total)-(b[1].correct/b[1].total));
+  const weak=sorted.filter(([,v])=>v.correct/v.total<0.6);
+  const strong=sorted.filter(([,v])=>v.correct/v.total>=0.8);
+
+  const recs={
+    "Acute Abdominal Pain":["Revise visceral vs parietal pain characteristics and nerve supply","Practise differentiating onset patterns: sudden vs rapid vs gradual","Study referred pain patterns: biliary, diaphragmatic, renal colic","Memorise red-flag presentations: perforated viscus, ruptured AAA"],
+    "Biliary Tract":["Review the 4 F's of gallstone risk and stone subtypes","Study Charcot's triad and Reynolds' pentad","Master the management ladder: biliary colic → cholecystitis → CBD stone → cholangitis"],
+    "Breast Cancer":["Revise benign vs malignant breast lump features","Study special presentations: Paget's, inflammatory, DCIS","Practise TNM staging (T1<2cm, T2 2–5cm, T3>5cm)"],
+    "GI Diseases":["Learn the blood colour–source relationship (bright red vs dark vs melaena)","Study the differentials for rectal bleeding by age","Revise Caput medusae and other portal hypertension signs"],
+    "Head Injury":["Memorise GCS components and scoring (minimum 3)","Study primary vs secondary brain injury — key management target","Revise haematoma types and their CT appearances"],
+    "Hernia":["Master hernia complications in order: reducible → irreducible → obstructed → strangulated","Study anatomical differences: direct/indirect inguinal vs femoral","Revise complications of hernia surgery"],
+    "Perianal Conditions":["Practise the blood colour–defaecation relationship for diagnosis","Study the abscess → fistula progression","Revise villous adenoma vs rectal cancer presentation"],
+    "Pre-operative Assessment":["Memorise ASA classification and surgical severity grades","Study organ-by-organ pre-op assessment","Revise pre-op drug management (anticoagulants, antiplatelets)"],
+    "Urological Diseases":["Learn storage vs voiding LUTS and their causes","Study haematuria: painful (stones/infection) vs painless (cancer)","Revise prostate: BPH (smooth, gradual) vs cancer (hard, irregular)"],
+    "Orthopaedics & Trauma":["Memorise nerve injuries associated with fractures (radial, axillary, peroneal)","Study compartment syndrome: 6 P's and definitive management","Revise AVN — which fractures cause it and why"],
+    "Thyroid & Neck":["Revise thyroid cancer spread patterns: papillary (lymph) vs follicular (blood)","Study anterior vs posterior triangle contents","Memorise special signs: Berry's, Trousseau's, Chvostek's"],
+    "Vascular Surgery":["Learn ABPI values and their clinical significance","Revise claudication vs rest pain vs venous claudication","Study ulcer type differentials: arterial vs venous vs diabetic vs Marjolin's"],
+    "Surface Anatomy":["Memorise surface landmarks: McBurney's, transpyloric plane, femoral artery midpoint","Practise identifying anatomical planes on a diagram"],
+    "General Surgery Principles":["Memorise surgical staging systems: Breslow (melanoma), Dukes (colorectal), TNM","Study the definitions: abscess, fistula, sinus, cellulitis, haematoma","Revise torsion of testis — it is a TIME CRITICAL emergency"],
+  };
+
+  const ringColor=pct>=80?'#1b5e20':pct>=60?'#e65100':'#880e4f';
+  let tpHTML=sorted.map(([name,stat])=>{
+    const p=Math.round(stat.correct/stat.total*100);
+    const bc=p>=80?'#1d6348':p>=60?'#e65100':'#b5341e';
+    return `<div class="tp-card"><div class="tp-header"><span class="tp-name">${name}</span>
+      <span class="tp-pill" style="background:${bc}22;color:${bc};">${stat.correct}/${stat.total} (${p}%)</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${bc}"></div></div></div>`;
+  }).join('');
+
+  let weakHTML=weak.length===0
+    ?`<div class="str-card"><div class="str-title">No major weaknesses identified!</div><p style="font-size:.85rem;color:#555;">Well done — focus on consolidating your knowledge.</p></div>`
+    :weak.map(([name,stat])=>{
+      const p=Math.round(stat.correct/stat.total*100);
+      const rec=(recs[name]||["Review this topic thoroughly","Revisit the lecture slides","Practise more MCQs"]);
+      return `<div class="weak-card"><div class="weak-title">⚠ ${name} — ${p}% (${stat.correct}/${stat.total})</div>
+        <ul class="weak-recs">${rec.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }).join('');
+
+  let strHTML=strong.length>0?`<div class="sec-title">Strengths</div>`+strong.map(([name,stat])=>{
+    return `<div class="str-card"><div class="str-title">✓ ${name} — ${Math.round(stat.correct/stat.total*100)}%</div>
+      <p style="font-size:.83rem;color:#555;margin-top:2px;">Keep it up — maintain regular revision to sustain mastery.</p></div>`;
+  }).join(''):'';
+
+  // Full review — show ALL questions with correct/wrong
+  const allReviewHTML=session.map((q,i)=>{
+    const ua=answers[i];
+    const isC=ua===q.ans;
+    const letters=['A','B','C','D','E'];
+    const diffColor=q.diff==='easy'?'#1b5e20':q.diff==='medium'?'#e65100':'#880e4f';
+    const diffBg=q.diff==='easy'?'#e8f5e9':q.diff==='medium'?'#fff8e1':'#fce4ec';
+    return `<div class="rev-item">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <span style="font-size:.7rem;font-weight:700;color:${isC?'#1b5e20':'#b71c1c'}">${isC?'✓ CORRECT':'✗ INCORRECT'}</span>
+        <span class="rev-tag" style="background:${diffBg};color:${diffColor};">${q.diff}</span>
+        <span class="rev-tag" style="background:#e8eaf6;color:#283593;">${q.topic}</span>
+      </div>
+      <div class="rev-q">Q${i+1}. ${q.q}</div>
+      <div class="rev-answers">
+        <div class="rev-your${isC?' ok':''}">${ua!==undefined?`Your answer: ${letters[ua]}. ${q.opts[ua]}`:'Not answered'}</div>
+        ${!isC?`<div class="rev-correct-ans">Correct answer: ${letters[q.ans]}. ${q.opts[q.ans]}</div>`:''}
+        <div class="rev-exp">${q.exp}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const resDiv=document.getElementById('results');
+  resDiv.style.display='block';
+  resDiv.innerHTML=`
+    <div class="res-hdr fu">
+      <div class="score-ring" style="border-color:${ringColor}30;outline:8px solid ${ringColor}18">
+        <div class="score-num" style="color:${ringColor}">${pct}%</div>
+        <div class="score-lbl">${correct}/40</div>
+      </div>
+      <span class="grade-badge" style="background:${gradeBg};color:${gradeColor}">${grade}</span>
+      <div class="res-title">${msg}</div>
+      <div class="res-sub">Completed in ${tMin}m ${tSec}s &nbsp;·&nbsp; ${correct} correct &nbsp;·&nbsp; ${40-correct} incorrect &nbsp;·&nbsp; ${40-Object.keys(answers).length} unanswered</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" style="color:${ringColor}">${pct}%</div><div class="stat-desc">Overall Score</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#1b5e20">${correct}</div><div class="stat-desc">Correct</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#b5341e">${40-correct}</div><div class="stat-desc">Incorrect</div></div>
+      <div class="stat-card"><div class="stat-num">${tMin}m</div><div class="stat-desc">Time Taken</div></div>
+    </div>
+
+    <div class="sec-title">Performance by Topic</div>
+    ${tpHTML}
+
+    <div class="sec-title">Areas Requiring Improvement</div>
+    ${weakHTML}
+    ${strHTML}
+
+    <div class="sec-title">Full Question Review &amp; Explanations</div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">All 40 questions with your answers, correct answers, and explanations for revision.</p>
+    ${allReviewHTML}
+
+    <div class="action-row">
+      <div class="action-row-label">What would you like to do next?</div>
+      <div class="action-row-btns">
+        <button class="btn-download" onclick="downloadAnswerKey()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download Answer Key PDF
+        </button>
+        <button class="btn-retake" onclick="location.reload()">
+          Retake with New Permutation
+        </button>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:420px;line-height:1.5">
+        The PDF contains all 40 questions from <em>this session</em> with correct answers highlighted — no explanations, clean for self-testing.
+      </div>
+    </div>
+  `;
+}
+
+// ── PDF ANSWER KEY GENERATOR ──────────────────────────────────
+function setRGB(doc, method, arr){ doc[method](arr[0], arr[1], arr[2]); }
+function downloadAnswerKey(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+
+  const pageW = 210, pageH = 297;
+  const marginL = 15, marginR = 15, marginT = 20, marginB = 20;
+  const contentW = pageW - marginL - marginR;
+  let y = marginT;
+  const lineH = 5.5;
+
+  // ── colour palette ──
+  const DEEP   = [28, 28, 46];
+  const ACCENT = [181, 52, 30];
+  const MUTED  = [110, 110, 120];
+  const BORDER = [220, 216, 208];
+  const CORRECT_BG = [232, 245, 233];
+  const CORRECT_TX = [27, 94, 32];
+  const EASY_TX  = [27, 94, 32];
+  const MED_TX   = [230, 81, 0];
+  const HARD_TX  = [136, 14, 79];
+
+  const letters = ['A','B','C','D','E'];
+
+  function addPage(){
+    doc.addPage();
+    y = marginT;
+    drawPageFooter();
+  }
+
+  function ensureSpace(needed){
+    if(y + needed > pageH - marginB) addPage();
+  }
+
+  function drawPageFooter(){
+    const pg = doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setFontSize(8).setTextColor(110,110,120);
+    doc.text(`Mock Test for Kelly — Answer Key  |  Page ${pg}`, pageW/2, pageH - 10, {align:'center'});
+    doc.setDrawColor(220,216,208);
+    doc.setLineWidth(0.3);
+    doc.line(marginL, pageH - 13, pageW - marginR, pageH - 13);
+  }
+
+  function wrapText(text, maxW, fontSize){
+    doc.setFontSize(fontSize);
+    return doc.splitTextToSize(text, maxW);
+  }
+
+  // ═══════ COVER PAGE ═══════
+  // Header bar
+  doc.setFillColor(181,52,30);
+  doc.rect(0, 0, pageW, 45, 'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold').setFontSize(22);
+  doc.text('Mock Test for Kelly', pageW/2, 18, {align:'center'});
+
+  doc.setFont('helvetica','normal').setFontSize(10);
+  doc.text('General Surgery & Orthopaedics — Clinical Assessment', pageW/2, 27, {align:'center'});
+
+  doc.setFont('helvetica','bold').setFontSize(13);
+  doc.text('EXAMINATION ANSWER KEY', pageW/2, 37, {align:'center'});
+
+  // Score box
+  const boxY = 60, boxH = 50;
+  doc.setFillColor(245, 244, 240);
+  doc.setDrawColor(220,216,208);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(marginL, boxY, contentW, boxH, 4, 4, 'FD');
+
+  const pct = Math.round(Object.keys(answers).filter(i=>answers[i]===session[i].ans).length/40*100);
+  const correctCount = Object.keys(answers).filter(i=>answers[i]===session[i].ans).length;
+  const timeTaken = 3600 - secsLeft;
+  const tMin = Math.floor(timeTaken/60), tSec = timeTaken%60;
+
+  // Score circle (simulated with text)
+  const scoreColor = pct>=80?[27,94,32]:pct>=60?[230,81,0]:[183,28,28];
+  doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+  doc.setFont('helvetica','bold').setFontSize(32);
+  doc.text(`${pct}%`, pageW/2, boxY+26, {align:'center'});
+
+  doc.setFont('helvetica','normal').setFontSize(9);
+  doc.setTextColor(110,110,120);
+  doc.text(`${correctCount} / 40 correct`, pageW/2, boxY+34, {align:'center'});
+
+  // Stats row
+  const stats = [
+    {label:'Score', val:`${pct}%`},
+    {label:'Correct', val:`${correctCount}`},
+    {label:'Incorrect', val:`${40-correctCount}`},
+    {label:'Time', val:`${tMin}m ${tSec}s`},
+  ];
+  const colW = contentW/4;
+  stats.forEach((s,i)=>{
+    const cx = marginL + i*colW + colW/2;
+    doc.setFont('helvetica','bold').setFontSize(12).setTextColor(28,28,46);
+    doc.text(s.val, cx, boxY+44, {align:'center'});
+    doc.setFont('helvetica','normal').setFontSize(7.5).setTextColor(110,110,120);
+    doc.text(s.label, cx, boxY+49.5, {align:'center'});
+  });
+
+  // Info note
+  doc.setFontSize(8.5).setTextColor(110,110,120).setFont('helvetica','italic');
+  doc.text('This document contains the 40 questions from your session with the correct answer for each.', pageW/2, boxY+boxH+12, {align:'center'});
+  doc.text('No explanations are included — use this as a clean self-assessment reference.', pageW/2, boxY+boxH+18, {align:'center'});
+
+  // Date
+  doc.setFont('helvetica','normal').setFontSize(8).setTextColor(110,110,120);
+  const now = new Date();
+  doc.text(`Generated: ${now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}  ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`, pageW/2, boxY+boxH+28, {align:'center'});
+
+  // Legend
+  const legY = boxY+boxH+40;
+  doc.setFont('helvetica','bold').setFontSize(9).setTextColor(28,28,46);
+  doc.text('Difficulty key:', marginL, legY);
+  const diffs=[{label:'Easy',c:EASY_TX},{label:'Medium',c:MED_TX},{label:'Hard',c:HARD_TX}];
+  let lx=marginL+28;
+  diffs.forEach(d=>{
+    doc.setFillColor(d.c[0], d.c[1], d.c[2]);
+    doc.roundedRect(lx, legY-4, 18, 6, 2, 2, 'F');
+    doc.setTextColor(255,255,255).setFont('helvetica','bold').setFontSize(7.5);
+    doc.text(d.label, lx+9, legY, {align:'center'});
+    lx+=23;
+  });
+
+  // Source legend
+  doc.setFont('helvetica','normal').setFontSize(8).setTextColor(110,110,120);
+  doc.text('Sources: LN = Lecture Notes   |   PP = Past Paper', marginL, legY+10);
+
+  drawPageFooter();
+
+  // ═══════ QUESTION PAGES ═══════
+  addPage();
+
+  // Column divider line  (2-column layout)
+  const col1X = marginL, col2X = pageW/2 + 3;
+  const colCW = (contentW/2) - 4;
+  let col = 0; // 0 = left, 1 = right
+  let colY = [marginT, marginT];
+
+  function getX(){ return col===0 ? col1X : col2X; }
+  function getY(){ return colY[col]; }
+  function setY(v){ colY[col]=v; }
+
+  function switchCol(){
+    if(col===0){
+      col=1;
+      colY[1]=marginT;
+    } else {
+      col=0;
+      colY[0]=marginT;
+      addPage();
+      colY=[marginT,marginT];
+      // draw column divider
+    }
+    drawColDivider();
+  }
+
+  function drawColDivider(){
+    const pg=doc.internal.getCurrentPageInfo().pageNumber;
+    // draw divider on current page
+    doc.setDrawColor(220,216,208);
+    doc.setLineWidth(0.3);
+    doc.line(pageW/2, marginT, pageW/2, pageH-marginB);
+  }
+
+  drawColDivider();
+
+  session.forEach((q, qi) => {
+    const ua = answers[qi];
+    const isC = ua === q.ans;
+    const diffColor = q.diff==='easy'?EASY_TX:q.diff==='medium'?MED_TX:HARD_TX;
+
+    // Estimate height needed
+    const qLines = wrapText(`${qi+1}. ${q.q}`, colCW-2, 8.5);
+    const neededH = 8 + qLines.length*4.5 + q.opts.length*5 + 10;
+
+    // Check space in current column
+    if(getY() + neededH > pageH - marginB){
+      switchCol();
+    }
+
+    const cx = getX();
+    let cy = getY();
+
+    // Question number pill + diff badge + source
+    doc.setFillColor(28,28,46);
+    doc.roundedRect(cx, cy, 8, 5.5, 1.5, 1.5, 'F');
+    doc.setTextColor(255,255,255).setFont('helvetica','bold').setFontSize(7);
+    doc.text(`${qi+1}`, cx+4, cy+3.9, {align:'center'});
+
+    // Diff badge
+    doc.setFillColor(diffColor[0], diffColor[1], diffColor[2]);
+    doc.roundedRect(cx+10, cy, 14, 5.5, 1.5, 1.5, 'F');
+    doc.setTextColor(255,255,255).setFont('helvetica','bold').setFontSize(6.5);
+    doc.text(q.diff.toUpperCase(), cx+17, cy+3.9, {align:'center'});
+
+    // Source tag
+    const srcShort = q.src==='Lecture Notes'?'LN':'PP';
+    doc.setFillColor(232,234,246);
+    doc.roundedRect(cx+26, cy, 9, 5.5, 1.5, 1.5, 'F');
+    doc.setTextColor(40,53,147).setFont('helvetica','bold').setFontSize(6.5);
+    doc.text(srcShort, cx+30.5, cy+3.9, {align:'center'});
+
+    cy += 7.5;
+
+    // Question text
+    doc.setFont('helvetica','normal').setFontSize(8.5).setTextColor(28,28,46);
+    const qWrapped = doc.splitTextToSize(`${q.q}`, colCW-2);
+    doc.text(qWrapped, cx+1, cy);
+    cy += qWrapped.length * 4.5 + 1.5;
+
+    // Options
+    q.opts.forEach((opt, oi) => {
+      const isCorrect = oi === q.ans;
+      const isChosen  = oi === ua;
+
+      if(isCorrect){
+        doc.setFillColor(232,245,233);
+        doc.roundedRect(cx, cy-3.5, colCW, 5.5, 1.5, 1.5, 'F');
+        doc.setDrawColor(27,94,32);
+        doc.setLineWidth(0.4);
+        doc.roundedRect(cx, cy-3.5, colCW, 5.5, 1.5, 1.5, 'S');
+        doc.setTextColor(27,94,32).setFont('helvetica','bold').setFontSize(7.5);
+        const optLines = doc.splitTextToSize(`${letters[oi]}. ${opt}`, colCW-8);
+        doc.text(optLines, cx+3, cy);
+        // tick mark
+        doc.setFont('helvetica','bold').setFontSize(8).setTextColor(27,94,32);
+        doc.text('✓', cx+colCW-5, cy);
+      } else {
+        doc.setTextColor(110,110,120).setFont('helvetica','normal').setFontSize(7.5);
+        const optLines = doc.splitTextToSize(`${letters[oi]}. ${opt}`, colCW-6);
+        doc.text(optLines, cx+3, cy);
+      }
+      cy += 5.2;
+    });
+
+    cy += 3; // gap between questions
+    // Separator line
+    doc.setDrawColor(220,216,208);
+    doc.setLineWidth(0.25);
+    doc.line(cx, cy-1.5, cx+colCW, cy-1.5);
+
+    setY(cy);
+  });
+
+  // ═══════ ANSWER SUMMARY PAGE ═══════
+  doc.addPage();
+  drawPageFooter();
+  let sy = marginT;
+
+  // Header
+  doc.setFillColor(28,28,46);
+  doc.rect(marginL, sy, contentW, 10, 'F');
+  doc.setTextColor(255,255,255).setFont('helvetica','bold').setFontSize(11);
+  doc.text('Quick Answer Reference', marginL+5, sy+7);
+  sy += 16;
+
+  doc.setFont('helvetica','normal').setFontSize(8).setTextColor(110,110,120);
+  doc.text('Correct answers for all 40 questions at a glance.', marginL, sy);
+  sy += 8;
+
+  // Grid: 5 columns x 8 rows = 40 cells
+  const cols5 = 5, rows8 = 8;
+  const cellW = contentW/cols5, cellH = 11;
+
+  for(let i=0;i<40;i++){
+    const row=Math.floor(i/cols5), col5=i%cols5;
+    const cx5=marginL+col5*cellW, cy5=sy+row*cellH;
+    const q=session[i];
+    const ua=answers[i];
+    const isC=ua===q.ans;
+    const ansLetter=letters[q.ans];
+
+    // Cell bg
+    doc.setFillColor(isC?232:255, isC?245:240, isC?233:240);
+    doc.setDrawColor(220,216,208);
+    doc.setLineWidth(0.3);
+    doc.rect(cx5, cy5, cellW, cellH, 'FD');
+
+    // Q number
+    doc.setFont('helvetica','bold').setFontSize(7).setTextColor(110,110,120);
+    doc.text(`Q${i+1}`, cx5+2, cy5+4.5);
+
+    // Correct answer letter — big
+    doc.setFont('helvetica','bold').setFontSize(13).setTextColor(27,94,32);
+    doc.text(ansLetter, cx5+cellW/2, cy5+8, {align:'center'});
+
+    // Tick/cross
+    doc.setFont('helvetica','bold').setFontSize(7);
+    if(isC){doc.setTextColor(27,94,32);}else{doc.setTextColor(183,28,28);}
+    doc.text(isC?'✓':'✗', cx5+cellW-4, cy5+4.5);
+  }
+
+  sy += rows8*cellH + 12;
+
+  // Topic summary table
+  doc.setFillColor(28,28,46);
+  doc.rect(marginL, sy, contentW, 8, 'F');
+  doc.setTextColor(255,255,255).setFont('helvetica','bold').setFontSize(9);
+  doc.text('Topic Performance Summary', marginL+4, sy+5.5);
+  sy+=8;
+
+  const tArr=Object.entries(
+    Object.fromEntries(Object.entries(Object.keys(answers).reduce((acc,i)=>{
+      const t=session[i].topic;
+      if(!acc[t])acc[t]={c:0,tot:0};
+      acc[t].tot++;
+      if(answers[i]===session[i].ans)acc[t].c++;
+      return acc;
+    },{})).sort((a,b)=>(a[1].c/a[1].tot)-(b[1].c/b[1].tot)))
+  );
+
+  // Also include questions not answered
+  const topicMap={};
+  session.forEach((q,i)=>{
+    if(!topicMap[q.topic])topicMap[q.topic]={c:0,tot:0};
+    topicMap[q.topic].tot++;
+    if(answers[i]===q.ans)topicMap[q.topic].c++;
+  });
+  const topicArr=Object.entries(topicMap).sort((a,b)=>(a[1].c/a[1].tot)-(b[1].c/b[1].tot));
+
+  const rowH2=7;
+  topicArr.forEach(([name,stat],idx)=>{
+    const p=Math.round(stat.c/stat.tot*100);
+    const rowBg=idx%2===0?[248,246,242]:[255,255,255];
+    doc.setFillColor(rowBg[0], rowBg[1], rowBg[2]);
+    doc.rect(marginL, sy, contentW, rowH2, 'F');
+
+    doc.setFont('helvetica','normal').setFontSize(8).setTextColor(28,28,46);
+    doc.text(name, marginL+3, sy+5);
+
+    doc.setFont('helvetica','bold').setFontSize(8);
+    const pc=p>=80?CORRECT_TX:p>=60?MED_TX:[183,28,28];
+    doc.setTextColor(pc[0], pc[1], pc[2]);
+    doc.text(`${stat.c}/${stat.tot}  (${p}%)`, pageW-marginR-3, sy+5, {align:'right'});
+
+    // Mini bar
+    const barX=marginL+contentW*0.55, barW=contentW*0.3, barH=3;
+    doc.setFillColor(220,216,208);
+    doc.roundedRect(barX, sy+2, barW, barH, 1,1,'F');
+    doc.setFillColor(pc[0], pc[1], pc[2]);
+    doc.roundedRect(barX, sy+2, barW*(p/100), barH, 1,1,'F');
+
+    sy+=rowH2;
+    if(sy>pageH-marginB-10){
+      doc.addPage();
+      drawPageFooter();
+      sy=marginT;
+    }
+  });
+
+  doc.save('Kelly_Surgery_Answer_Key.pdf');
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
